@@ -57,7 +57,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex mt-12">
       {/* Left: Decorative */}
       <div className="hidden lg:flex w-1/2 bg-ink text-cream flex-col justify-between p-16 relative overflow-hidden">
         <div className="absolute inset-0 stripe-bg opacity-20" />

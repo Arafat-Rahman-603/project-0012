@@ -49,7 +49,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex mt-12">
       {/* Left: Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-16">
         <motion.div
