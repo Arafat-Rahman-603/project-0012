@@ -574,16 +574,21 @@ export default function ProductDetailPage() {
                     <p className="text-sm text-ink/70 leading-relaxed">
                       {review.comment}
                     </p>
-                    {review.image?.url && (
-                      <div className="mt-3">
-                        <img 
-                          src={review.image.url} 
-                          alt="Review" 
-                          className="w-24 h-24 object-cover rounded-sm border border-ink/10 cursor-zoom-in hover:opacity-90 transition-opacity"
-                          onClick={() => window.open(review.image.url, '_blank')}
-                        />
-                      </div>
-                    )}
+                    {review.image?.url &&
+                      (() => {
+                        const imageUrl = review.image.url;
+
+                        return (
+                          <div className="mt-3">
+                            <img
+                              src={imageUrl}
+                              alt="Review"
+                              className="w-24 h-24 object-cover rounded-sm border border-ink/10 cursor-zoom-in hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(imageUrl, "_blank")}
+                            />
+                          </div>
+                        );
+                      })()}
                   </motion.div>
                 ))
               )}

@@ -59,6 +59,7 @@ export interface Review {
   user: { _id: string; name: string; avatar?: string };
   rating: number;
   comment: string;
+  image?: { url: string; publicId?: string };
   createdAt: string;
 }
 
