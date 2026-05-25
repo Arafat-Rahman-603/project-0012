@@ -56,6 +56,20 @@ export default function ProductsContent() {
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   useEffect(() => {
+    if (window.innerWidth <= 480) {
+      if (showFilters) {
+        setView("list");
+      } else {
+        setView("grid");
+      }
+    }
+    if (window.innerWidth >= 480) {
+      setView("grid");
+    }
+
+  }, [showFilters]);
+
+  useEffect(() => {
     setFilters((prev) => {
       const nextFilters: ProductFilters = {
         ...prev,
