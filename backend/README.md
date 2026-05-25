@@ -1,4 +1,4 @@
-# 🛒 EcomStore Backend API
+# 🛒 Fancy Planet Backend API
 
 A fully functional Express.js e-commerce REST API with:
 - **MongoDB** (Mongoose ODM)

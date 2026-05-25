@@ -13,7 +13,7 @@ const createTransporter = () =>
 
 const emailTemplates = {
   verifyEmailCode: (name, code) => ({
-    subject: "Your Verification Code - EcomStore",
+    subject: "Your Verification Code - Fancy Planet",
     html: `
       <!DOCTYPE html>
       <html>
@@ -21,7 +21,7 @@ const emailTemplates = {
       <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
         <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
           <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:40px 30px;text-align:center;">
-            <h1 style="color:#fff;margin:0;font-size:28px;">EcomStore</h1>
+            <h1 style="color:#fff;margin:0;font-size:28px;">Fancy Planet</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Email Verification</p>
           </div>
           <div style="padding:40px 30px;text-align:center;">
@@ -37,7 +37,7 @@ const emailTemplates = {
             </p>
           </div>
           <div style="background:#f9f9f9;padding:20px 30px;text-align:center;">
-            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} EcomStore. All rights reserved.</p>
+            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} Fancy Planet. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -46,7 +46,7 @@ const emailTemplates = {
   }),
 
   verifyEmail: (name, verificationUrl) => ({
-    subject: "Verify Your Email - EcomStore",
+    subject: "Verify Your Email - Fancy Planet",
     html: `
       <!DOCTYPE html>
       <html>
@@ -54,13 +54,13 @@ const emailTemplates = {
       <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
         <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
           <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:40px 30px;text-align:center;">
-            <h1 style="color:#fff;margin:0;font-size:28px;">EcomStore</h1>
+            <h1 style="color:#fff;margin:0;font-size:28px;">Fancy Planet</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Welcome to our store!</p>
           </div>
           <div style="padding:40px 30px;">
             <h2 style="color:#333;margin:0 0 16px;">Hi ${name}! 👋</h2>
             <p style="color:#666;line-height:1.6;margin:0 0 24px;">
-              Thank you for registering with EcomStore. Please verify your email address to activate your account and start shopping.
+              Thank you for registering with Fancy Planet. Please verify your email address to activate your account and start shopping.
             </p>
             <div style="text-align:center;margin:32px 0;">
               <a href="${verificationUrl}" 
@@ -78,7 +78,7 @@ const emailTemplates = {
             </p>
           </div>
           <div style="background:#f9f9f9;padding:20px 30px;text-align:center;">
-            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} EcomStore. All rights reserved.</p>
+            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} Fancy Planet. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -87,7 +87,7 @@ const emailTemplates = {
   }),
 
   forgotPassword: (name, resetUrl) => ({
-    subject: "Reset Your Password - EcomStore",
+    subject: "Reset Your Password - Fancy Planet",
     html: `
       <!DOCTYPE html>
       <html>
@@ -95,13 +95,13 @@ const emailTemplates = {
       <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
         <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
           <div style="background:linear-gradient(135deg,#f093fb,#f5576c);padding:40px 30px;text-align:center;">
-            <h1 style="color:#fff;margin:0;font-size:28px;">EcomStore</h1>
+            <h1 style="color:#fff;margin:0;font-size:28px;">Fancy Planet</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Password Reset Request</p>
           </div>
           <div style="padding:40px 30px;">
             <h2 style="color:#333;margin:0 0 16px;">Hi ${name},</h2>
             <p style="color:#666;line-height:1.6;margin:0 0 24px;">
-              We received a request to reset your EcomStore account password. Click the button below to choose a new password.
+              We received a request to reset your Fancy Planet account password. Click the button below to choose a new password.
             </p>
             <div style="text-align:center;margin:32px 0;">
               <a href="${resetUrl}" 
@@ -121,7 +121,7 @@ const emailTemplates = {
             </p>
           </div>
           <div style="background:#f9f9f9;padding:20px 30px;text-align:center;">
-            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} EcomStore. All rights reserved.</p>
+            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} Fancy Planet. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -130,7 +130,7 @@ const emailTemplates = {
   }),
 
   orderConfirmation: (name, order) => ({
-    subject: `Order Confirmed #${order.orderNumber} - EcomStore`,
+    subject: `Order Confirmed #${order.orderNumber} - Fancy Planet`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -169,7 +169,7 @@ const emailTemplates = {
             </table>
           </div>
           <div style="background:#f9f9f9;padding:20px 30px;text-align:center;">
-            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} EcomStore. All rights reserved.</p>
+            <p style="color:#bbb;font-size:12px;margin:0;">© ${new Date().getFullYear()} Fancy Planet. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -178,7 +178,7 @@ const emailTemplates = {
   }),
 
   passwordChanged: (name) => ({
-    subject: "Password Changed Successfully - EcomStore",
+    subject: "Password Changed Successfully - Fancy Planet",
     html: `
       <!DOCTYPE html>
       <html>
@@ -186,7 +186,7 @@ const emailTemplates = {
         <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:8px;padding:40px;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
           <h2 style="color:#333;">Password Changed 🔐</h2>
           <p style="color:#666;">Hi <strong>${name}</strong>,</p>
-          <p style="color:#666;line-height:1.6;">Your EcomStore account password was changed successfully. If you did not make this change, please contact support immediately.</p>
+          <p style="color:#666;line-height:1.6;">Your Fancy Planet account password was changed successfully. If you did not make this change, please contact support immediately.</p>
           <p style="color:#999;font-size:13px;">Time: ${new Date().toUTCString()}</p>
         </div>
       </body>

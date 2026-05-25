@@ -55,7 +55,7 @@ export default function RegisterPage() {
               <ShoppingBag className="w-4 h-4 text-cream" />
             </div>
             <span className="text-xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
-              EcomStore
+              Fancy Planet
             </span>
           </Link>
         </div>
