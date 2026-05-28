@@ -3,15 +3,19 @@ const router = express.Router();
 const orderController = require("../controllers/orderController");
 const { protect, restrictTo, requireEmailVerified } = require("../middleware/auth");
 
+// ── Static / prefix routes MUST come before /:id ──────────────────────────────
+
 // User routes
-router.post("/", protect, requireEmailVerified, orderController.createOrder);
+router.post("/", protect, orderController.createOrder);
 router.get("/my", protect, orderController.getMyOrders);
+
+// Admin routes (must be before /:id to avoid "admin" being treated as an ID)
+router.get("/admin/stats", protect, restrictTo("admin"), orderController.getDashboardStats);
+router.get("/", protect, restrictTo("admin"), orderController.getAllOrders);
+
+// ── Dynamic /:id routes ────────────────────────────────────────────────────────
 router.get("/:id", protect, orderController.getOrder);
 router.put("/:id/cancel", protect, orderController.cancelOrder);
-
-// Admin routes
-router.get("/", protect, restrictTo("admin"), orderController.getAllOrders);
-router.get("/admin/stats", protect, restrictTo("admin"), orderController.getDashboardStats);
 router.put("/:id/status", protect, restrictTo("admin"), orderController.updateOrderStatus);
 
 module.exports = router;
