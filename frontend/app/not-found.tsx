@@ -2,6 +2,12 @@
 import { motion } from "motion/react";
 import Link from "next/link";
 import { ShoppingBag, ArrowRight, Search } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "404 | Not Found | Next Shop",
+  description: "404 | Not Found | Next Shop",
+};
 
 export default function NotFound() {
   return (

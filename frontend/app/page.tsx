@@ -8,6 +8,12 @@ import { Product, Category } from "@/types";
 import ProductCard from "@/components/product/ProductCard";
 import { extractList } from "@/lib/listResponse";
 import { defaultSiteSettings, useSiteSettings } from "@/hooks/useSiteSettings";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home | Next Shop",
+  description: "Home | Next Shop",
+};
 
 const fallbackBannerImages = [
   "https://static.vecteezy.com/system/resources/thumbnails/004/299/835/small/online-shopping-on-phone-buy-sell-business-digital-web-banner-application-money-advertising-payment-ecommerce-illustration-search-free-vector.jpg",
