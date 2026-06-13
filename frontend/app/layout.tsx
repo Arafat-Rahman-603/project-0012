@@ -8,7 +8,7 @@ import AuthProvider from "@/components/auth/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Fancy Planet | Premium Saree Store",
-  description: "Shop elegant sarees, festive drapes, and timeless collections at Fancy Planet.",
+  description: "Shop elegant sarees, festive drapes, and timeless collections atNext Shop.",
 };
 
 export default function RootLayout({

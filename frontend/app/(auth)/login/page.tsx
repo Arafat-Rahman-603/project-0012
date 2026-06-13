@@ -71,7 +71,7 @@ export default function LoginPage() {
               <ShoppingBag className="w-4 h-4 text-cream" />
             </div>
             <span className="text-xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
-              Fancy Planet
+              Next Shop
             </span>
           </Link>
         </div>

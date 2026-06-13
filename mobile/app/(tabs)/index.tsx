@@ -294,7 +294,7 @@ export default function HomeScreen() {
       {/* CTA Banner */}
       <View style={styles.ctaBanner}>
         <Text style={styles.ctaBannerEyebrow}>LIMITED TIME</Text>
-        <Text style={styles.ctaBannerTitle}>Join Fancy Planet</Text>
+        <Text style={styles.ctaBannerTitle}>JoinNext Shop</Text>
         <Text style={styles.ctaBannerSub}>
           Get early access to new saree drops, festive collections, and exclusive offers.
         </Text>

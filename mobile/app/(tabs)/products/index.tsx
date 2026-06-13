@@ -179,6 +179,7 @@ export default function ProductsScreen() {
                   <Ionicons name="close" size={12} color={Colors.ink} />
                 </TouchableOpacity>
               </View>
+            
             )}
             {filters.inStock && (
               <View style={[styles.chip, { backgroundColor: Colors.success }]}>

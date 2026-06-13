@@ -1,4 +1,4 @@
-// Color palette matching the Fancy Planet brand (amber/cream/ink)
+// Color palette matching theNext Shop brand (amber/cream/ink)
 export const Colors = {
   // Brand colors
   ink: "#1a1a1a",
