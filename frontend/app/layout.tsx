@@ -7,8 +7,8 @@ import CartDrawer from "@/components/cart/CartDrawer";
 import AuthProvider from "@/components/auth/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "Fancy Planet | Premium Saree Store",
-  description: "Shop elegant sarees, festive drapes, and timeless collections atNext Shop.",
+  title: "Next Shop | Online Shopping",
+  description: "Buy unique and customize items at Next Shop.",
 };
 
 export default function RootLayout({

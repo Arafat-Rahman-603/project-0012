@@ -18,6 +18,12 @@ import { Order } from "@/types";
 import { useAuthHydration } from "@/hooks/useAuthHydration";
 import { extractList } from "@/lib/listResponse";
 import { getOrderStatus, formatBdt, normalizeOrder } from "@/lib/orderUtils";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard | Next Shop",
+  description: "Dashboard | Next Shop",
+};
 
 export default function DashboardPage() {
   const router = useRouter();

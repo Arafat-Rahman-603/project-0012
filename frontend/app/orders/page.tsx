@@ -24,6 +24,12 @@ import {
 } from "@/lib/orderUtils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Orders | Next Shop",
+  description: "Orders | Next Shop",
+};
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
   pending: {

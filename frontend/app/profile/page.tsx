@@ -1,5 +1,11 @@
 import { Suspense } from "react";
 import ProfileContent from "./ProfileContent";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Profile | Next Shop",
+  description: "Profile | Next Shop",
+};
 
 export default function ProfilePage() {
   return (

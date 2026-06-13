@@ -6,6 +6,12 @@ import { Eye, EyeOff, Lock, ShoppingBag } from "lucide-react";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reset Password | Next Shop",
+  description: "Reset Password | Next Shop",
+};
 
 export default function ResetPasswordPage() {
   const { token } = useParams<{ token: string }>();

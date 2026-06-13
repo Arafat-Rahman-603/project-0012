@@ -10,6 +10,12 @@ import { Eye, EyeOff, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login | Next Shop",
+  description: "Login | Next Shop",
+};
 
 const schema = z.object({
   email: z.string().email("Invalid email"),

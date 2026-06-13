@@ -1,5 +1,11 @@
 import { Suspense } from "react";
 import ProductsContent from "./ProductsContent";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Products | Next Shop",
+  description: "Products | Next Shop",
+};
 
 export default function ProductsPage() {
   return (

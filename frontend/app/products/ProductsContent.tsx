@@ -7,6 +7,12 @@ import { productsApi, categoriesApi } from "@/lib/api";
 import { Product, Category, ProductFilters } from "@/types";
 import ProductCard from "@/components/product/ProductCard";
 import { extractList, extractTotal } from "@/lib/listResponse";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Products | Next Shop",
+  description: "Products | Next Shop",
+};
 
 const SORT_OPTIONS = [
   { label: "Newest", value: "-createdAt" },

@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { getProductRatings, getRatingDistribution } from "@/lib/productRatings";
 
+
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();

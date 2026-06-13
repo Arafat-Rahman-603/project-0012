@@ -6,6 +6,12 @@ import { CheckCircle2, XCircle, Loader2, ShoppingBag } from "lucide-react";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Verify Email | Next Shop",
+  description: "Verify Email | Next Shop",
+};
 
 export default function VerifyEmailLinkPage() {
   const { token } = useParams<{ token: string }>();

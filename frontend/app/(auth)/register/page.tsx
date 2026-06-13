@@ -10,6 +10,12 @@ import { Eye, EyeOff, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/lib/api";
 import { toast } from "sonner";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Register | Next Shop",
+  description: "Register | Next Shop",
+};
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),

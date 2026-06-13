@@ -10,6 +10,12 @@ import { ordersApi } from "@/lib/api";
 import { Address } from "@/types";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cart | Next Shop",
+  description: "Cart | Next Shop",
+};
 
 export default function CartPage() {
   const router = useRouter();
