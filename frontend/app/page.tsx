@@ -377,7 +377,7 @@ export default function HomePage() {
             className="text-4xl md:text-5xl font-bold mb-4"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Join Fancy Planet
+            Join Next Shop
           </h2>
           <p className="text-cream/60 mb-8 max-w-md mx-auto">
             Get early access to new saree drops, festive collections, and exclusive offers.
