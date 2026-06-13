@@ -107,6 +107,20 @@ exports.createProduct = async (req, res, next) => {
       productData.isActive === "true" ||
       productData.isActive === true;
 
+    // Parse sizes: accept JSON array string or comma-separated string
+    if (productData.sizes !== undefined) {
+      if (typeof productData.sizes === "string") {
+        try {
+          productData.sizes = JSON.parse(productData.sizes);
+        } catch (_) {
+          productData.sizes = productData.sizes
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }
+    }
+
     if (req.files && req.files.length > 0) {
       productData.images = req.files.map((file) => ({
         url: file.path,
@@ -160,6 +174,20 @@ exports.updateProduct = async (req, res, next) => {
     if (updates.isActive !== undefined) {
       updates.isActive =
         updates.isActive === "true" || updates.isActive === true;
+    }
+
+    // Parse sizes: accept JSON array string or comma-separated string
+    if (updates.sizes !== undefined) {
+      if (typeof updates.sizes === "string") {
+        try {
+          updates.sizes = JSON.parse(updates.sizes);
+        } catch (_) {
+          updates.sizes = updates.sizes
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }
     }
 
     const updated = await Product.findByIdAndUpdate(req.params.id, updates, {

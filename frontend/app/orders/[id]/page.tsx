@@ -191,6 +191,14 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
+          {/* Note to Seller */}
+          {(order as any).notes && (
+            <div className="mt-5 border border-amber/20 bg-amber/5 rounded-sm p-5">
+              <p className="text-xs font-semibold tracking-wider uppercase text-ink/40 mb-1">Note to Seller</p>
+              <p className="text-sm text-ink/70 leading-relaxed">{(order as any).notes}</p>
+            </div>
+          )}
+
           {/* Cancel */}
           {["pending", "processing"].includes(status) && (
             <div className="mt-6 pt-6 border-t border-ink/10 flex justify-end">

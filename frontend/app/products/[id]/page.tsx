@@ -33,6 +33,7 @@ export default function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
@@ -54,6 +55,10 @@ export default function ProductDetailPage() {
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       toast.error("Please sign in to add to cart");
+      return;
+    }
+    if (product?.sizes && product.sizes.length > 0 && !selectedSize) {
+      toast.error("Please select a size");
       return;
     }
     setAddingToCart(true);
@@ -308,6 +313,31 @@ export default function ProductDetailPage() {
                     #{tag}
                   </span>
                 ))}
+              </div>
+            )}
+
+            {/* Sizes */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold tracking-widest uppercase text-ink/50 mb-2">
+                  Size {selectedSize && <span className="text-ink normal-case tracking-normal font-medium">— {selectedSize}</span>}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedSize(size === selectedSize ? null : size)}
+                      className={`min-w-[42px] px-3 py-1.5 text-sm font-medium border rounded-sm transition-all ${
+                        selectedSize === size
+                          ? "bg-ink text-cream border-ink scale-105"
+                          : "bg-cream border-ink/20 hover:border-ink/60"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

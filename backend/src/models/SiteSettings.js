@@ -4,6 +4,13 @@ const bannerSchema = new mongoose.Schema(
   {
     url: { type: String, required: true, trim: true },
     publicId: { type: String, default: "" },
+    title: { type: String, default: "" },
+    subtitle: { type: String, default: "" },
+    ctaText: { type: String, default: "Shop Now" },
+    ctaHref: { type: String, default: "/products" },
+    textColor: { type: String, default: "#F8F6F0" },
+    buttonBg: { type: String, default: "#D97706" },
+    buttonColor: { type: String, default: "#0A0A0A" },
   },
   { _id: true }
 );
@@ -25,17 +32,17 @@ const siteSettingsSchema = new mongoose.Schema(
     heroTitle: {
       type: String,
       trim: true,
-      default: "Timeless Sarees for Every Celebration",
+      default: "",
     },
     heroSubtitle: {
       type: String,
       trim: true,
-      default: "Discover elegant silk, jamdani, katan, and festive sarees curated for modern women.",
+      default: "",
     },
     heroCtaText: {
       type: String,
       trim: true,
-      default: "Shop Sarees",
+      default: "Shop Now",
     },
     heroCtaHref: {
       type: String,
@@ -45,6 +52,50 @@ const siteSettingsSchema = new mongoose.Schema(
     banners: {
       type: [bannerSchema],
       default: [],
+    },
+    logo: {
+      url: { type: String, default: "" },
+      publicId: { type: String, default: "" },
+    },
+    contactPhone: {
+      type: String,
+      default: "",
+    },
+    contactEmail: {
+      type: String,
+      default: "",
+    },
+    contactAddress: {
+      type: String,
+      default: "",
+    },
+    facebookUrl: {
+      type: String,
+      default: "",
+    },
+    instagramUrl: {
+      type: String,
+      default: "",
+    },
+    whatsappNumber: {
+      type: String,
+      default: "",
+    },
+    announcementText: {
+      type: String,
+      default: "",
+    },
+    showAnnouncement: {
+      type: Boolean,
+      default: false,
+    },
+    announcementBg: {
+      type: String,
+      default: "#D97706",
+    },
+    announcementColor: {
+      type: String,
+      default: "#FFFFFF",
     },
   },
   { timestamps: true }

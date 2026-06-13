@@ -80,6 +80,14 @@ const uploadBannerImages = multer({
   limits: { fileSize: 8 * 1024 * 1024 },
 }).array("bannerImages", 10);
 
+const uploadSettingsImages = multer({
+  storage: bannerStorage,
+  limits: { fileSize: 8 * 1024 * 1024 },
+}).fields([
+  { name: "bannerImages", maxCount: 10 },
+  { name: "logoImage", maxCount: 1 },
+]);
+
 // Review image storage
 const reviewStorage = new CloudinaryStorage({
   cloudinary,
@@ -111,6 +119,7 @@ module.exports = {
   uploadAvatar,
   uploadHeroImage,
   uploadBannerImages,
+  uploadSettingsImages,
   uploadReviewImage,
   deleteImage,
 };

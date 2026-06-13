@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Shield, Truck, RotateCcw } from "lucide-react";
 import { productsApi, categoriesApi } from "@/lib/api";
@@ -20,10 +20,22 @@ export default function HomeClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeBanner, setActiveBanner] = useState(0);
   const { settings } = useSiteSettings();
+  
   const bannerImages =
     settings.banners.length > 0
       ? settings.banners.map((banner) => banner.url)
       : fallbackBannerImages;
+
+  const currentBanner = settings.banners?.[activeBanner];
+  
+  const activeTitle = currentBanner?.title || settings.heroTitle || defaultSiteSettings.heroTitle;
+  const activeSubtitle = currentBanner?.subtitle || settings.heroSubtitle || defaultSiteSettings.heroSubtitle;
+  const activeCtaText = currentBanner?.ctaText || settings.heroCtaText || defaultSiteSettings.heroCtaText;
+  const activeCtaHref = currentBanner?.ctaHref || settings.heroCtaHref || defaultSiteSettings.heroCtaHref;
+  
+  const activeTextColor = currentBanner?.textColor || "#F8F6F0";
+  const activeButtonBg = currentBanner?.buttonBg || "#D97706";
+  const activeButtonColor = currentBanner?.buttonColor || "#0A0A0A";
 
   useEffect(() => {
     async function load() {
@@ -76,62 +88,59 @@ export default function HomeClient() {
           <div className="absolute top-1/2 right-10 w-20 h-80 bg-cream/10 transform rotate-12 -translate-y-1/2" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-3xl"
-          >
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 w-full">
+          <div className="max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6 }}
-              className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-amber-200 mb-6 px-3 py-1.5 bg-amber/10 rounded-sm border border-amber/30"
+              className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-amber-200 mb-6 px-3 py-1.5 bg-amber/10 rounded-sm border border-amber/30 animate-pulse"
             >
               <Sparkles className="w-3.5 h-3.5" />
               {settings.siteName || defaultSiteSettings.siteName}
             </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight text-cream"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {settings.heroTitle || defaultSiteSettings.heroTitle}
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.6 }}
-              className="mt-6 text-lg md:text-xl text-cream/80 max-w-xl leading-relaxed"
-            >
-              {settings.heroSubtitle || defaultSiteSettings.heroSubtitle}
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="mt-10 flex flex-wrap gap-4"
-            >
-              <Link
-                href={settings.heroCtaHref || defaultSiteSettings.heroCtaHref}
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-amber text-ink text-sm font-semibold rounded-sm hover:bg-amber-light transition-all hover:gap-3"
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeBanner}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.4 }}
               >
-                {settings.heroCtaText || defaultSiteSettings.heroCtaText}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/products?featured=true"
-                className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-cream/80 text-cream text-sm font-semibold rounded-sm hover:bg-cream hover:text-ink transition-all"
-              >
-                Explore Featured Sarees
-              </Link>
-            </motion.div>
+                <h1
+                  className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight"
+                  style={{ color: activeTextColor, fontFamily: "var(--font-display)" }}
+                >
+                  {activeTitle}
+                </h1>
+
+                <p
+                  className="mt-6 text-lg md:text-xl max-w-xl leading-relaxed opacity-90 font-medium"
+                  style={{ color: activeTextColor }}
+                >
+                  {activeSubtitle}
+                </p>
+
+                <div className="mt-10 flex flex-wrap gap-4">
+                  <Link
+                    href={activeCtaHref}
+                    style={{ backgroundColor: activeButtonBg, color: activeButtonColor }}
+                    className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold rounded-sm hover:opacity-90 transition-all hover:gap-3 shadow-md"
+                  >
+                    {activeCtaText}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    href="/products?featured=true"
+                    style={{ borderColor: `${activeTextColor}80`, color: activeTextColor }}
+                    className="inline-flex items-center gap-2 px-8 py-3.5 border-2 text-sm font-semibold rounded-sm hover:bg-cream/10 transition-all"
+                  >
+                    Explore Featured Sarees
+                  </Link>
+                </div>
+              </motion.div>
+            </AnimatePresence>
 
             {bannerImages.length > 1 && (
               <div className="mt-8 flex items-center gap-2">
@@ -148,7 +157,7 @@ export default function HomeClient() {
                 ))}
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
 
         {/* Stats */}
@@ -198,7 +207,7 @@ export default function HomeClient() {
                 className="text-3xl md:text-4xl font-bold"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Saree Categories
+                Categories
               </h2>
             </div>
             <Link

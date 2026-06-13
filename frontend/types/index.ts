@@ -45,6 +45,7 @@ export interface Product {
   brand?: string;
   sku?: string;
   tags?: string[];
+  sizes?: string[];
   featured?: boolean;
   isFeatured?: boolean;
   rating?: number;
@@ -92,6 +93,7 @@ export interface Order {
   /** API field name from MongoDB */
   orderStatus?: string;
   status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+  notes?: string;
   createdAt: string;
 }
 
@@ -119,6 +121,13 @@ export interface BannerImage {
   _id?: string;
   url: string;
   publicId?: string;
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaHref?: string;
+  textColor?: string;
+  buttonBg?: string;
+  buttonColor?: string;
 }
 
 export interface SiteSettings {
@@ -129,4 +138,18 @@ export interface SiteSettings {
   heroCtaText: string;
   heroCtaHref: string;
   banners: BannerImage[];
+  logo?: {
+    url: string;
+    publicId?: string;
+  };
+  contactPhone?: string;
+  contactEmail?: string;
+  contactAddress?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  whatsappNumber?: string;
+  announcementText?: string;
+  showAnnouncement?: boolean;
+  announcementBg?: string;
+  announcementColor?: string;
 }

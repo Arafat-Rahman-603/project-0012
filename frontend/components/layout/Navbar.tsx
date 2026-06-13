@@ -62,25 +62,46 @@ export default function Navbar() {
         initial={{ y: -80 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-all duration-300 ${
           scrolled
             ? "bg-cream/95 backdrop-blur-sm border-b border-ink/10 shadow-sm"
             : "bg-cream"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {settings.showAnnouncement && settings.announcementText && (
+          <div
+            style={{
+              backgroundColor: settings.announcementBg || "#D97706",
+              color: settings.announcementColor || "#FFFFFF",
+            }}
+            className="w-full text-center py-1.5 px-4 text-xs font-semibold tracking-wider transition-all select-none shadow-sm relative z-50"
+          >
+            {settings.announcementText}
+          </div>
+        )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 bg-ink rounded-sm flex items-center justify-center group-hover:bg-amber transition-colors duration-200">
-                <ShoppingBag className="w-4 h-4 text-cream" />
-              </div>
-              <span
-                className="text-xl font-bold tracking-tight"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                {siteName}
-              </span>
+              {settings.logo?.url ? (
+                <img
+                  src={settings.logo.url}
+                  alt={siteName}
+                  className="h-8 md:h-10 w-auto object-contain"
+                />
+              ) : (
+                <>
+                  <div className="w-8 h-8 bg-ink rounded-sm flex items-center justify-center group-hover:bg-amber transition-colors duration-200">
+                    <ShoppingBag className="w-4 h-4 text-cream" />
+                  </div>
+                  <span
+                    className="text-xl font-bold tracking-tight"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {siteName}
+                  </span>
+                </>
+              )}
             </Link>
 
             {/* Desktop Nav */}

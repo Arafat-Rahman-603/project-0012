@@ -37,6 +37,7 @@ const productSchema = new mongoose.Schema(
     stock: { type: Number, required: true, default: 0 },
     sku: { type: String, unique: true, sparse: true },
     tags: [String],
+    sizes: [{ type: String, trim: true }],
     attributes: { type: Map, of: String },
     reviews: [reviewSchema],
     rating: { type: Number, default: 0 },

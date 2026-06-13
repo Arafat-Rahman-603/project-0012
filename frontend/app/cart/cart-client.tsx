@@ -18,6 +18,7 @@ export default function CartClient() {
   const [checkoutStep, setCheckoutStep] = useState<"cart" | "address" | "confirm">("cart");
   const paymentMethod = "cod";
   const [placing, setPlacing] = useState(false);
+  const [note, setNote] = useState("");
 
   const { register, handleSubmit, formState: { errors } } = useForm<Address>();
 
@@ -34,6 +35,7 @@ export default function CartClient() {
       await ordersApi.create({
         shippingAddress: address,
         paymentMethod,
+        notes: note.trim() || undefined,
       });
       await clearCart();
       toast.success("Order placed successfully!");
@@ -260,6 +262,19 @@ export default function CartClient() {
                       <p className="text-xs text-ink/40 mt-1">
                         Pay when your order is delivered. Online payment is not available yet.
                       </p>
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/60">
+                        Note to Seller <span className="normal-case font-normal text-ink/35">(optional)</span>
+                      </label>
+                      <textarea
+                        value={note}
+                        onChange={e => setNote(e.target.value)}
+                        placeholder="Any special instructions, colour preferences, gift messages…"
+                        rows={3}
+                        className="w-full bg-parchment border border-ink/10 rounded-sm px-3 py-2.5 text-sm focus:outline-none focus:border-amber transition-colors resize-none"
+                      />
                     </div>
                   </form>
                 </motion.div>

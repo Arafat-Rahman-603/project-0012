@@ -6,12 +6,22 @@ import type { SiteSettings } from "@/types";
 
 export const defaultSiteSettings: SiteSettings = {
   siteName: "Next Shop",
-  heroTitle: "Timeless Sarees for Every Celebration",
-  heroSubtitle:
-    "Discover elegant silk, jamdani, katan, and festive sarees curated for modern women.",
-  heroCtaText: "Shop Sarees",
+  heroTitle: "",
+  heroSubtitle: "",
+  heroCtaText: "Shop Now",
   heroCtaHref: "/products",
   banners: [],
+  logo: { url: "", publicId: "" },
+  contactPhone: "",
+  contactEmail: "",
+  contactAddress: "",
+  facebookUrl: "",
+  instagramUrl: "",
+  whatsappNumber: "",
+  announcementText: "",
+  showAnnouncement: false,
+  announcementBg: "#D97706",
+  announcementColor: "#FFFFFF",
 };
 
 export function useSiteSettings() {
@@ -33,6 +43,17 @@ export function useSiteSettings() {
           heroCtaText: next.heroCtaText || defaultSiteSettings.heroCtaText,
           heroCtaHref: next.heroCtaHref || defaultSiteSettings.heroCtaHref,
           banners: Array.isArray(next.banners) ? next.banners : [],
+          logo: next.logo || defaultSiteSettings.logo,
+          contactPhone: next.contactPhone || defaultSiteSettings.contactPhone,
+          contactEmail: next.contactEmail || defaultSiteSettings.contactEmail,
+          contactAddress: next.contactAddress || defaultSiteSettings.contactAddress,
+          facebookUrl: next.facebookUrl || defaultSiteSettings.facebookUrl,
+          instagramUrl: next.instagramUrl || defaultSiteSettings.instagramUrl,
+          whatsappNumber: next.whatsappNumber || defaultSiteSettings.whatsappNumber,
+          announcementText: next.announcementText || defaultSiteSettings.announcementText,
+          showAnnouncement: next.showAnnouncement ?? defaultSiteSettings.showAnnouncement,
+          announcementBg: next.announcementBg || defaultSiteSettings.announcementBg,
+          announcementColor: next.announcementColor || defaultSiteSettings.announcementColor,
         });
       })
       .catch(() => {
