@@ -10,9 +10,8 @@ import { extractList } from "@/lib/listResponse";
 import { defaultSiteSettings, useSiteSettings } from "@/hooks/useSiteSettings";
 
 const fallbackBannerImages = [
-  "https://images.unsplash.com/photo-1610030469668-20c416ca3572?w=1920&q=80",
-  "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=1920&q=80",
-  "https://images.unsplash.com/photo-1583391733956-6c78e0c962b9?w=1920&q=80",
+  "https://static.vecteezy.com/system/resources/thumbnails/004/299/835/small/online-shopping-on-phone-buy-sell-business-digital-web-banner-application-money-advertising-payment-ecommerce-illustration-search-free-vector.jpg",
+  "https://cdn.vectorstock.com/i/500p/09/80/online-shopping-laptop-banner-vector-17230980.jpg"
 ];
 
 export default function HomePage() {
