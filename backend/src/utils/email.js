@@ -21,7 +21,7 @@ const emailTemplates = {
       <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
         <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
           <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:40px 30px;text-align:center;">
-            <h1 style="color:#fff;margin:0;font-size:28px;">Fancy Planet</h1>
+            <h1 style="color:#fff;margin:0;font-size:28px;">Next Shop</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Email Verification</p>
           </div>
           <div style="padding:40px 30px;text-align:center;">
@@ -54,7 +54,7 @@ const emailTemplates = {
       <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
         <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
           <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:40px 30px;text-align:center;">
-            <h1 style="color:#fff;margin:0;font-size:28px;">Fancy Planet</h1>
+            <h1 style="color:#fff;margin:0;font-size:28px;">Next Shop</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Welcome to our store!</p>
           </div>
           <div style="padding:40px 30px;">
@@ -95,7 +95,7 @@ const emailTemplates = {
       <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
         <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
           <div style="background:linear-gradient(135deg,#f093fb,#f5576c);padding:40px 30px;text-align:center;">
-            <h1 style="color:#fff;margin:0;font-size:28px;">Fancy Planet</h1>
+            <h1 style="color:#fff;margin:0;font-size:28px;">Next Shop</h1>
             <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Password Reset Request</p>
           </div>
           <div style="padding:40px 30px;">

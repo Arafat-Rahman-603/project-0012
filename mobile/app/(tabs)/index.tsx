@@ -85,7 +85,7 @@ export default function HomeScreen() {
     load();
   }, []);
 
-  const siteName = settings?.siteName || "FANCY PLANET";
+  const siteName = settings?.siteName || "Next Shop";
   const heroTitle = settings?.heroTitle || "Elegant\nSarees for\nEvery Occasion";
   const heroSubtitle = settings?.heroSubtitle || "Discover hand-picked sarees from across India";
   const heroCtaText = settings?.heroCtaText || "Shop Now";

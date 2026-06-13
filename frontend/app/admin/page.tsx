@@ -784,7 +784,7 @@ function CategoriesTab() {
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
 function SettingsTab() {
   const [settings, setSettings] = useState<SiteSettings>({
-    siteName: "Fancy Planet",
+    siteName: "Next Shop",
     heroTitle: "Timeless Sarees for Every Celebration",
     heroSubtitle:
       "Discover elegant silk, jamdani, katan, and festive sarees curated for modern women.",
@@ -803,7 +803,7 @@ function SettingsTab() {
         const next = data?.data as SiteSettings | undefined;
         if (next) {
           setSettings({
-            siteName: next.siteName || "Fancy Planet",
+            siteName: next.siteName || "Next Shop",
             heroTitle: next.heroTitle || "Timeless Sarees for Every Celebration",
             heroSubtitle:
               next.heroSubtitle ||

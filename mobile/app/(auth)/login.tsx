@@ -208,7 +208,7 @@ export default function LoginScreen() {
           <View style={styles.logoIcon}>
             <Ionicons name="bag-outline" size={20} color={Colors.cream} />
           </View>
-          <Text style={styles.logoText}>Fancy Planet</Text>
+          <Text style={styles.logoText}>Next Shop</Text>
         </View>
 
         {!forgotMode ? (

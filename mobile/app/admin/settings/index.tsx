@@ -14,7 +14,7 @@ export default function AdminSettings() {
   const { toast, hide, success, error: showError } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [siteName, setSiteName] = useState("Fancy Planet");
+  const [siteName, setSiteName] = useState("Next Shop");
   const [heroTitle, setHeroTitle] = useState("");
   const [heroSubtitle, setHeroSubtitle] = useState("");
   const [heroCtaText, setHeroCtaText] = useState("");
@@ -26,7 +26,7 @@ export default function AdminSettings() {
       .then(({ data }) => {
         const s = data.settings || data.data || data;
         if (s) {
-          setSiteName(s.siteName || "Fancy Planet");
+          setSiteName(s.siteName || "Next Shop");
           setHeroTitle(s.heroTitle || "");
           setHeroSubtitle(s.heroSubtitle || "");
           setHeroCtaText(s.heroCtaText || "");

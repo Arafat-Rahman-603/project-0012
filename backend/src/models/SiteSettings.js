@@ -20,7 +20,7 @@ const siteSettingsSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      default: "Fancy Planet",
+      default: "Next Shop",
     },
     heroTitle: {
       type: String,

@@ -5,7 +5,7 @@ import { settingsApi } from "@/lib/api";
 import type { SiteSettings } from "@/types";
 
 export const defaultSiteSettings: SiteSettings = {
-  siteName: "Fancy Planet",
+  siteName: "Next Shop",
   heroTitle: "Timeless Sarees for Every Celebration",
   heroSubtitle:
     "Discover elegant silk, jamdani, katan, and festive sarees curated for modern women.",

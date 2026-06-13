@@ -32,7 +32,7 @@ export default function VerifyEmailClient() {
           <div className="w-9 h-9 bg-ink rounded-sm flex items-center justify-center">
             <ShoppingBag className="w-5 h-5 text-cream" />
           </div>
-          <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>Fancy Planet</span>
+          <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>Next Shop</span>
         </Link>
 
         {status === "loading" && (

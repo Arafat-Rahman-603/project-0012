@@ -104,7 +104,7 @@ app.use("/api/settings", settingsRoutes);
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Fancy Planet API",
+    message: "Next Shop API",
     version: "1.0.0",
     docs: "/api-docs",
     endpoints: {

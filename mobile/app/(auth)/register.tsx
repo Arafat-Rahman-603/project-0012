@@ -54,7 +54,7 @@ export default function RegisterScreen() {
           <View style={styles.logoIcon}>
             <Ionicons name="bag-outline" size={20} color={Colors.cream} />
           </View>
-          <Text style={styles.logoText}>Fancy Planet</Text>
+          <Text style={styles.logoText}>Next Shop</Text>
         </View>
 
         <Text style={styles.title}>Create Account</Text>
