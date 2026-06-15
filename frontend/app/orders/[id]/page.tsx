@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Package, Clock, CheckCircle2, Truck, XCircle,
-  MapPin, CreditCard, ChevronLeft, ShoppingBag
+  MapPin, CreditCard, ChevronLeft, ShoppingBag, X
 } from "lucide-react";
 import { ordersApi } from "@/lib/api";
 import { Order } from "@/types";
@@ -35,6 +35,8 @@ export default function OrderDetailPage() {
   const { isAuthenticated } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/login"); return; }
@@ -192,10 +194,25 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Note to Seller */}
-          {(order as any).notes && (
+          {((order as any).notes || (order as any).noteImage?.url) && (
             <div className="mt-5 border border-amber/20 bg-amber/5 rounded-sm p-5">
               <p className="text-xs font-semibold tracking-wider uppercase text-ink/40 mb-1">Note to Seller</p>
-              <p className="text-sm text-ink/70 leading-relaxed">{(order as any).notes}</p>
+              {(order as any).notes && (
+                <p className="text-sm text-ink/70 leading-relaxed">{(order as any).notes}</p>
+              )}
+              {(order as any).noteImage?.url && (
+                <div className="mt-3">
+                  <img
+                    src={(order as any).noteImage.url}
+                    alt="Order Note Attachment"
+                    className="max-w-[200px] h-auto object-cover rounded-sm border border-amber/20 cursor-zoom-in hover:opacity-90 transition-opacity"
+                    onClick={() => {
+                      setLightboxImage((order as any).noteImage.url);
+                      setIsLightboxOpen(true);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -210,6 +227,43 @@ export default function OrderDetailPage() {
           )}
         </motion.div>
       </div>
+
+      {/* Fullscreen Lightbox */}
+      <AnimatePresence>
+        {isLightboxOpen && lightboxImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setIsLightboxOpen(false);
+              setLightboxImage(null);
+            }}
+            className="fixed inset-0 z-50 bg-ink/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLightboxOpen(false);
+                setLightboxImage(null);
+              }}
+              className="absolute top-6 right-6 text-cream/70 hover:text-cream hover:bg-cream/10 p-2 rounded-full transition-all"
+              aria-label="Close fullscreen view"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <motion.img
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              src={lightboxImage}
+              alt="Order Note Attachment"
+              className="max-w-full max-h-[90vh] object-contain rounded-sm select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

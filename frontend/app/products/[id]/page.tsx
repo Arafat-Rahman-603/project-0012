@@ -39,6 +39,7 @@ export default function ProductDetailPage() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewImage, setReviewImage] = useState<File | null>(null);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const { addItem } = useCartStore();
   const { isAuthenticated, user, updateWishlist } = useAuthStore();
@@ -188,7 +189,8 @@ export default function ProductDetailPage() {
                 <img
                   src={product.images[selectedImage].url}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover cursor-zoom-in hover:opacity-95 transition-opacity"
+                  onClick={() => setIsLightboxOpen(true)}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -627,6 +629,39 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Lightbox */}
+      <AnimatePresence>
+        {isLightboxOpen && product.images?.[selectedImage] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsLightboxOpen(false)}
+            className="fixed inset-0 z-50 bg-ink/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLightboxOpen(false);
+              }}
+              className="absolute top-6 right-6 text-cream/70 hover:text-cream hover:bg-cream/10 p-2 rounded-full transition-all"
+              aria-label="Close fullscreen view"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <motion.img
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              src={product.images[selectedImage].url}
+              alt={product.name}
+              className="max-w-full max-h-[90vh] object-contain rounded-sm select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

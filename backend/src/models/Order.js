@@ -49,6 +49,10 @@ const orderSchema = new mongoose.Schema(
     cancelReason: String,
     trackingNumber: String,
     notes: String,
+    noteImage: {
+      url: String,
+      publicId: String,
+    },
   },
   { timestamps: true }
 );

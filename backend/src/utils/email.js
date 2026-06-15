@@ -13,7 +13,7 @@ const createTransporter = () =>
 
 const emailTemplates = {
   verifyEmailCode: (name, code) => ({
-    subject: "Your Verification Code -Next Shop",
+    subject: "Your Verification Code - Next Shop",
     html: `
       <!DOCTYPE html>
       <html>
@@ -87,7 +87,7 @@ const emailTemplates = {
   }),
 
   forgotPassword: (name, resetUrl) => ({
-    subject: "Reset Your Password -Next Shop",
+    subject: "Reset Your Password - Next Shop",
     html: `
       <!DOCTYPE html>
       <html>
@@ -130,7 +130,7 @@ const emailTemplates = {
   }),
 
   orderConfirmation: (name, order) => ({
-    subject: `Order Confirmed #${order.orderNumber} -Next Shop`,
+    subject: `Order Confirmed #${order.orderNumber} - Next Shop`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -178,7 +178,7 @@ const emailTemplates = {
   }),
 
   passwordChanged: (name) => ({
-    subject: "Password Changed Successfully -Next Shop",
+    subject: "Password Changed Successfully - Next Shop",
     html: `
       <!DOCTYPE html>
       <html>

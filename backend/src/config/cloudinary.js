@@ -105,6 +105,23 @@ const uploadReviewImage = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 }).single("image");
 
+// Order note image storage
+const orderNoteStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "ecommerce/order-notes",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation: [
+      { width: 1200, height: 1200, crop: "limit", quality: "auto" },
+    ],
+  },
+});
+
+const uploadOrderNoteImage = multer({
+  storage: orderNoteStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+}).single("noteImage");
+
 const deleteImage = async (publicId) => {
   try {
     await cloudinary.uploader.destroy(publicId);
@@ -121,5 +138,6 @@ module.exports = {
   uploadBannerImages,
   uploadSettingsImages,
   uploadReviewImage,
+  uploadOrderNoteImage,
   deleteImage,
 };

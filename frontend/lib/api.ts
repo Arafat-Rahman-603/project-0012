@@ -121,7 +121,12 @@ export const cartApi = {
 
 // Orders
 export const ordersApi = {
-  create: (data: unknown) => api.post("/orders", data),
+  create: (data: unknown | FormData) => {
+    const isFormData = data instanceof FormData;
+    return api.post("/orders", data, {
+      headers: isFormData ? { "Content-Type": "multipart/form-data" } : {},
+    });
+  },
   myOrders: () => api.get("/orders/my"),
   get: (id: string) => api.get(`/orders/${id}`),
   cancel: (id: string) => api.put(`/orders/${id}/cancel`),

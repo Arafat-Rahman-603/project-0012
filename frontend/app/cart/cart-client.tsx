@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, MapPin } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, MapPin, Camera, X, ZoomIn } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { ordersApi } from "@/lib/api";
@@ -19,6 +19,10 @@ export default function CartClient() {
   const paymentMethod = "cod";
   const [placing, setPlacing] = useState(false);
   const [note, setNote] = useState("");
+  const [noteImage, setNoteImage] = useState<File | null>(null);
+  const [noteImagePreview, setNoteImagePreview] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const noteImageRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<Address>();
 
@@ -32,11 +36,20 @@ export default function CartClient() {
   const placeOrder = async (address: Address) => {
     setPlacing(true);
     try {
-      await ordersApi.create({
-        shippingAddress: address,
-        paymentMethod,
-        notes: note.trim() || undefined,
-      });
+      const fd = new FormData();
+      fd.append("shippingAddress[fullName]", address.fullName);
+      fd.append("shippingAddress[phone]", address.phone);
+      fd.append("shippingAddress[addressLine1]", address.addressLine1);
+      if (address.addressLine2) fd.append("shippingAddress[addressLine2]", address.addressLine2);
+      fd.append("shippingAddress[city]", address.city);
+      fd.append("shippingAddress[state]", address.state);
+      fd.append("shippingAddress[postalCode]", address.postalCode);
+      fd.append("shippingAddress[country]", address.country);
+      fd.append("paymentMethod", paymentMethod);
+      if (note.trim()) fd.append("notes", note.trim());
+      if (noteImage) fd.append("noteImage", noteImage);
+
+      await ordersApi.create(fd);
       await clearCart();
       toast.success("Order placed successfully!");
       router.push("/orders");
@@ -275,6 +288,58 @@ export default function CartClient() {
                         rows={3}
                         className="w-full bg-parchment border border-ink/10 rounded-sm px-3 py-2.5 text-sm focus:outline-none focus:border-amber transition-colors resize-none"
                       />
+                      {/* Note image upload */}
+                      <div className="flex items-center gap-3 mt-2">
+                        <button
+                          type="button"
+                          onClick={() => noteImageRef.current?.click()}
+                          className="flex items-center gap-2 text-xs font-medium bg-parchment border border-ink/10 px-3 py-1.5 rounded-sm hover:bg-ink/5 transition-colors"
+                        >
+                          <Camera className="w-3.5 h-3.5 text-ink/40" />
+                          {noteImage ? "Change Photo" : "Attach Photo"}
+                        </button>
+                        <input
+                          ref={noteImageRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={e => {
+                            const file = e.target.files?.[0] || null;
+                            setNoteImage(file);
+                            if (file) {
+                              const url = URL.createObjectURL(file);
+                              setNoteImagePreview(url);
+                            } else {
+                              setNoteImagePreview(null);
+                            }
+                          }}
+                        />
+                        {noteImagePreview && (
+                          <div className="relative flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setLightboxOpen(true)}
+                              className="relative group"
+                            >
+                              <img
+                                src={noteImagePreview}
+                                alt="Note preview"
+                                className="w-12 h-12 object-cover rounded-sm border border-ink/15"
+                              />
+                              <div className="absolute inset-0 bg-ink/30 opacity-0 group-hover:opacity-100 rounded-sm flex items-center justify-center transition-opacity">
+                                <ZoomIn className="w-4 h-4 text-cream" />
+                              </div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setNoteImage(null); setNoteImagePreview(null); }}
+                              className="text-ink/40 hover:text-red-500 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </form>
                 </motion.div>

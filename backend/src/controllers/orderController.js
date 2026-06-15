@@ -91,6 +91,9 @@ exports.createOrder = async (req, res, next) => {
       taxPrice,
       totalPrice,
       notes,
+      noteImage: req.file
+        ? { url: req.file.path, publicId: req.file.filename }
+        : undefined,
       orderStatus: "pending",
     });
 
