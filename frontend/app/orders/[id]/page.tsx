@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
+import Image from "next/image";
 import {
   Package, Clock, CheckCircle2, Truck, XCircle,
   MapPin, CreditCard, ChevronLeft, ShoppingBag, X
@@ -133,7 +134,7 @@ export default function OrderDetailPage() {
                   <Link href={getOrderItemLink(item)}
                     className="w-14 h-14 bg-parchment rounded-sm overflow-hidden shrink-0 hover:opacity-80 transition-opacity">
                     {getOrderItemImage(item)
-                      ? <img src={getOrderItemImage(item)} alt={getOrderItemName(item)} className="w-full h-full object-cover" />
+                      ? <Image src={getOrderItemImage(item)} alt={getOrderItemName(item)} width={56} height={56} className="w-full h-full object-cover" />
                       : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-5 h-5 text-ink/20" /></div>
                     }
                   </Link>
@@ -202,9 +203,11 @@ export default function OrderDetailPage() {
               )}
               {(order as any).noteImage?.url && (
                 <div className="mt-3">
-                  <img
+                  <Image
                     src={(order as any).noteImage.url}
                     alt="Order Note Attachment"
+                    width={200}
+                    height={200}
                     className="max-w-[200px] h-auto object-cover rounded-sm border border-amber/20 cursor-zoom-in hover:opacity-90 transition-opacity"
                     onClick={() => {
                       setLightboxImage((order as any).noteImage.url);

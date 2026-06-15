@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingBag, ExternalLink, Globe, Mail } from "lucide-react";
 import { defaultSiteSettings, useSiteSettings } from "@/hooks/useSiteSettings";
 
@@ -48,9 +49,11 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               {settings.logo?.url ? (
-                <img
+                <Image
                   src={settings.logo.url}
                   alt={siteName}
+                  width={120}
+                  height={32}
                   className="h-8 w-auto object-contain brightness-0 invert"
                 />
               ) : (

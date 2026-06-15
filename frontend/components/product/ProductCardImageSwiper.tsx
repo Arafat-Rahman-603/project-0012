@@ -3,6 +3,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import { ShoppingBag } from "lucide-react";
+import Image from "next/image";
 import "swiper/css";
 import "swiper/css/effect-fade";
 
@@ -23,10 +24,12 @@ export default function ProductCardImageSwiper({ images, alt, className = "" }: 
 
   if (images.length === 1) {
     return (
-      <img
+      <Image
         src={images[0].url}
         alt={alt}
-        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${className}`}
+        fill
+        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        className={`object-cover transition-transform duration-500 group-hover:scale-105 ${className}`}
       />
     );
   }
@@ -47,10 +50,12 @@ export default function ProductCardImageSwiper({ images, alt, className = "" }: 
     >
       {images.map((img, i) => (
         <SwiperSlide key={i}>
-          <img
+          <Image
             src={img.url}
             alt={`${alt} ${i + 1}`}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </SwiperSlide>
       ))}

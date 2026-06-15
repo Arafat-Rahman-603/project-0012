@@ -1,25 +1,35 @@
 "use client";
 import { motion } from "motion/react";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { Product } from "@/types";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { usersApi } from "@/lib/api";
 import { toast } from "sonner";
-import { useState } from "react";
-import ProductCardImageSwiper from "@/components/product/ProductCardImageSwiper";
+import { useState, memo } from "react";
 import { getProductRatings } from "@/lib/productRatings";
+
+const ProductCardImageSwiper = dynamic(
+  () => import("@/components/product/ProductCardImageSwiper"),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-parchment animate-pulse" />,
+  }
+);
 
 interface Props {
   product: Product;
   index?: number;
 }
 
-export default function ProductCard({ product, index = 0 }: Props) {
+const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
   const { addItem } = useCartStore();
   const { isAuthenticated, user, updateWishlist } = useAuthStore();
   const [addingToCart, setAddingToCart] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const isInWishlist = user?.wishlist?.some((id) => id === product._id);
   const { average: avgRating, count: totalReviews } = getProductRatings(product);
@@ -68,8 +78,28 @@ export default function ProductCard({ product, index = 0 }: Props) {
       transition={{ duration: 0.4, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
     >
       <Link href={`/products/${product.slug || product._id}`} className="group block">
-        <div className="relative overflow-hidden bg-parchment rounded-sm aspect-[4/5]">
-          <ProductCardImageSwiper images={product.images || []} alt={product.name} />
+        <div
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="relative overflow-hidden bg-parchment rounded-sm aspect-[4/5]"
+        >
+          {isHovered && product.images && product.images.length > 1 ? (
+            <ProductCardImageSwiper images={product.images} alt={product.name} />
+          ) : product.images?.[0] ? (
+            <Image
+              src={product.images[0].url}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={index < 4}
+              fetchPriority={index < 4 ? "high" : "low"}
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-parchment">
+              <ShoppingBag className="w-12 h-12 text-ink/20" />
+            </div>
+          )}
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
@@ -150,4 +180,6 @@ export default function ProductCard({ product, index = 0 }: Props) {
       </Link>
     </motion.div>
   );
-}
+});
+
+export default ProductCard;

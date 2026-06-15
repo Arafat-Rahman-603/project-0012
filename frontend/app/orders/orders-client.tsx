@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Package,
   Clock,
@@ -213,9 +214,11 @@ export default function OrdersClient() {
                             className="w-14 h-14 shrink-0 bg-parchment rounded-sm overflow-hidden"
                           >
                             {getOrderItemImage(item) ? (
-                              <img
+                              <Image
                                 src={getOrderItemImage(item)}
                                 alt={getOrderItemName(item)}
+                                width={56}
+                                height={56}
                                 className="w-full h-full object-cover"
                               />
                             ) : (

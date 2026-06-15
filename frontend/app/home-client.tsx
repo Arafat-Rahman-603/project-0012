@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Sparkles, Shield, Truck, RotateCcw } from "lucide-react";
 import { productsApi, categoriesApi } from "@/lib/api";
 import { Product, Category } from "@/types";
@@ -72,11 +73,20 @@ export default function HomeClient() {
         {bannerImages.map((image, index) => (
           <div
             key={`${image}-${index}`}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+            className={`absolute inset-0 transition-opacity duration-1000 ${
               index === activeBanner ? "opacity-100" : "opacity-0"
             }`}
-            style={{ backgroundImage: `url(${image})` }}
-          />
+          >
+            <Image
+              src={image}
+              alt={`Banner ${index + 1}`}
+              fill
+              priority={index === 0}
+              fetchPriority={index === 0 ? "high" : "low"}
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          </div>
         ))}
         <div className="absolute inset-0 bg-gradient-to-r from-ink/75 via-ink/45 to-ink/20" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/25 via-transparent to-ink/70" />
@@ -232,9 +242,11 @@ export default function HomeClient() {
                   className="group flex items-center gap-3 p-4 bg-parchment hover:bg-ink hover:text-cream rounded-sm transition-all duration-200"
                 >
                   {cat.image ? (
-                    <img
+                    <Image
                       src={cat.image}
                       alt={cat.name}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-sm object-cover"
                     />
                   ) : (

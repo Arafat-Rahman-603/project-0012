@@ -33,6 +33,7 @@ import { productsApi, ordersApi, usersApi, categoriesApi, settingsApi } from "@/
 import { Product, Order, User, Category, SiteSettings } from "@/types";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { extractList } from "@/lib/listResponse";
 import { formatBdt, getOrderStatus, normalizeOrder } from "@/lib/orderUtils";
 
@@ -280,7 +281,7 @@ function ProductsTab() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-parchment rounded-sm overflow-hidden shrink-0">
-                        {product.images?.[0] && <img src={product.images[0].url} alt="" className="w-full h-full object-cover" />}
+                         {product.images?.[0] && <Image src={product.images[0].url} alt="" width={40} height={40} className="w-full h-full object-cover" />}
                       </div>
                       <div>
                         <p className="font-medium line-clamp-1 max-w-[200px]">{product.name}</p>
@@ -621,7 +622,7 @@ function UsersTab() {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-ink text-cream flex items-center justify-center text-xs font-medium overflow-hidden">
-                      {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.name?.charAt(0)}
+                       {u.avatar ? <Image src={u.avatar} alt="" width={32} height={32} className="w-full h-full object-cover" /> : u.name?.charAt(0)}
                     </div>
                     <span className="font-medium">{u.name}</span>
                   </div>
@@ -684,7 +685,7 @@ function UsersTab() {
                   <div className="space-y-6">
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-full bg-ink text-cream flex items-center justify-center text-2xl font-bold overflow-hidden">
-                        {userDetails.user.avatar ? <img src={userDetails.user.avatar} className="w-full h-full object-cover" /> : userDetails.user.name.charAt(0)}
+                         {userDetails.user.avatar ? <Image src={userDetails.user.avatar} alt="" width={64} height={64} className="w-full h-full object-cover" /> : userDetails.user.name.charAt(0)}
                       </div>
                       <div>
                         <h4 className="font-bold text-xl">{userDetails.user.name}</h4>
@@ -816,7 +817,7 @@ function CategoriesTab() {
           : categories.map(cat => (
             <div key={cat._id} className="border border-ink/10 rounded-sm p-4 flex items-center gap-3 hover:border-ink/20 transition-colors group">
               <div className="w-10 h-10 bg-parchment rounded-sm flex items-center justify-center text-lg shrink-0 overflow-hidden">
-                {cat.image ? <img src={cat.image} alt="" className="w-full h-full object-cover" /> : "🏷"}
+                 {cat.image ? <Image src={cat.image} alt="" width={40} height={40} className="w-full h-full object-cover" /> : "🏷"}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">{cat.name}</p>
@@ -1142,7 +1143,7 @@ function SettingsTab() {
                     <label className="block text-xs font-semibold tracking-wider uppercase mb-2 text-ink/50">Store Logo</label>
                     {logoPreviewUrl ? (
                       <div className="flex items-center gap-4 p-4 border border-dashed border-amber bg-amber/5 rounded-sm">
-                        <img src={logoPreviewUrl} className="h-12 w-auto object-contain bg-ink p-1.5 rounded-sm shadow" alt="Logo Preview" />
+                         <Image src={logoPreviewUrl} width={120} height={48} className="h-12 w-auto object-contain bg-ink p-1.5 rounded-sm shadow" alt="Logo Preview" unoptimized />
                         <div>
                           <p className="text-xs font-semibold">New logo selected</p>
                           <button
@@ -1159,7 +1160,7 @@ function SettingsTab() {
                       </div>
                     ) : !removeLogo && settings.logo?.url ? (
                       <div className="flex items-center gap-4 p-4 border border-ink/10 bg-cream rounded-sm">
-                        <img src={settings.logo.url} className="h-12 w-auto object-contain bg-ink p-1.5 rounded-sm shadow" alt="Current Logo" />
+                         <Image src={settings.logo.url} width={120} height={48} className="h-12 w-auto object-contain bg-ink p-1.5 rounded-sm shadow" alt="Current Logo" />
                         <div>
                           <p className="text-xs font-semibold">Active Store Logo</p>
                           <button
@@ -1422,7 +1423,7 @@ function SettingsTab() {
                     <div key={banner.url} className="p-4 border border-ink/10 rounded-sm bg-parchment/40 space-y-4">
                       <div className="flex gap-4">
                         <div className="w-20 h-28 bg-parchment rounded-sm overflow-hidden shrink-0 border border-ink/10 relative shadow-sm">
-                          <img src={banner.url} alt="" className="w-full h-full object-cover" />
+                           <Image src={banner.url} alt="" width={240} height={120} className="w-full h-full object-cover" />
                           <button
                             type="button"
                             onClick={() => removeExistingBanner(banner.url, index)}
@@ -1534,7 +1535,7 @@ function SettingsTab() {
                       <div key={banner.previewUrl} className="p-4 border border-dashed border-amber bg-amber/5 space-y-4">
                         <div className="flex gap-4">
                           <div className="w-20 h-28 bg-parchment rounded-sm overflow-hidden shrink-0 border border-amber/30 relative shadow-sm">
-                            <img src={banner.previewUrl} alt="" className="w-full h-full object-cover" />
+                             <Image src={banner.previewUrl} alt="" width={240} height={120} className="w-full h-full object-cover" unoptimized />
                             <button
                               type="button"
                               onClick={() => removeNewBanner(index)}
@@ -1674,9 +1675,9 @@ function SettingsTab() {
               <div className="bg-cream/90 backdrop-blur-xs border-b border-ink/5 px-2 py-1.5 flex items-center justify-between text-[7px] select-none">
                 <div className="flex items-center gap-1 font-bold">
                   {logoPreviewUrl ? (
-                    <img src={logoPreviewUrl} className="h-3 w-auto object-contain bg-ink/5 p-[1px]" alt="Logo Preview" />
+                     <Image src={logoPreviewUrl} width={24} height={12} className="h-3 w-auto object-contain bg-ink/5 p-[1px]" alt="Logo Preview" unoptimized />
                   ) : !removeLogo && settings.logo?.url ? (
-                    <img src={settings.logo.url} className="h-3 w-auto object-contain bg-ink/5 p-[1px]" alt="Active Logo" />
+                     <Image src={settings.logo.url} width={24} height={12} className="h-3 w-auto object-contain bg-ink/5 p-[1px]" alt="Active Logo" />
                   ) : (
                     <>
                       <div className="w-2.5 h-2.5 bg-ink rounded-xs flex items-center justify-center text-cream text-[5px]">🛍</div>

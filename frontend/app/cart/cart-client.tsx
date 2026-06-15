@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, MapPin, Camera, X, ZoomIn } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
@@ -159,9 +160,11 @@ export default function CartClient() {
                           className="w-20 h-20 bg-parchment rounded-sm overflow-hidden shrink-0"
                         >
                           {item.product.images?.[0] ? (
-                            <img
+                            <Image
                               src={item.product.images[0].url}
                               alt={item.product.name}
+                              width={80}
+                              height={80}
                               className="w-full h-full object-cover hover:scale-105 transition-transform"
                             />
                           ) : (
@@ -321,9 +324,12 @@ export default function CartClient() {
                               onClick={() => setLightboxOpen(true)}
                               className="relative group"
                             >
-                              <img
+                              <Image
                                 src={noteImagePreview}
                                 alt="Note preview"
+                                width={48}
+                                height={48}
+                                unoptimized
                                 className="w-12 h-12 object-cover rounded-sm border border-ink/15"
                               />
                               <div className="absolute inset-0 bg-ink/30 opacity-0 group-hover:opacity-100 rounded-sm flex items-center justify-center transition-opacity">

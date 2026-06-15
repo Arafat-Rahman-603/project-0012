@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   User, MapPin, Heart, Lock, Camera, Plus, Pencil, Trash2,
   CheckCircle2, ShoppingBag, Save, X
@@ -114,7 +115,7 @@ export default function ProfileContent() {
           <div className="relative group">
             <div className="w-20 h-20 rounded-full bg-ink text-cream flex items-center justify-center text-3xl font-bold overflow-hidden">
               {user.avatar
-                ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                ? <Image src={user.avatar} alt={user.name} width={80} height={80} className="w-full h-full object-cover" />
                 : user.name?.charAt(0).toUpperCase()
               }
             </div>
@@ -394,7 +395,7 @@ function WishlistTab({
             <Link href={`/products/${product.slug || product._id}`}>
               <div className="aspect-[4/5] bg-parchment rounded-sm overflow-hidden mb-3">
                 {product.images?.[0]
-                  ? <img src={typeof product.images[0] === "string" ? product.images[0] : product.images[0].url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ? <Image src={typeof product.images[0] === "string" ? product.images[0] : product.images[0].url} alt={product.name} width={300} height={375} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-8 h-8 text-ink/20" /></div>
                 }
               </div>

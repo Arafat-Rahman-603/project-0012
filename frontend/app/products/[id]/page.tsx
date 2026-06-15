@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag,
@@ -186,10 +187,14 @@ export default function ProductDetailPage() {
               className="aspect-square bg-parchment rounded-sm overflow-hidden relative"
             >
               {product.images?.[selectedImage] ? (
-                <img
+                <Image
                   src={product.images[selectedImage].url}
                   alt={product.name}
-                  className="w-full h-full object-cover cursor-zoom-in hover:opacity-95 transition-opacity"
+                  fill
+                  priority
+                  fetchPriority="high"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover cursor-zoom-in hover:opacity-95 transition-opacity"
                   onClick={() => setIsLightboxOpen(true)}
                 />
               ) : (
@@ -214,9 +219,11 @@ export default function ProductDetailPage() {
                       selectedImage === i ? "border-ink" : "border-transparent"
                     }`}
                   >
-                    <img
+                    <Image
                       src={img.url}
                       alt=""
+                      width={80}
+                      height={80}
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -576,9 +583,11 @@ export default function ProductDetailPage() {
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 rounded-full bg-ink text-cream flex items-center justify-center text-xs font-medium overflow-hidden">
                         {review.user?.avatar ? (
-                          <img
+                          <Image
                             src={review.user.avatar}
                             alt=""
+                            width={32}
+                            height={32}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -613,10 +622,12 @@ export default function ProductDetailPage() {
 
                         return (
                           <div className="mt-3">
-                            <img
+                            <Image
                               src={imageUrl}
                               alt="Review"
-                              className="w-24 h-24 object-cover rounded-sm border border-ink/10 cursor-zoom-in hover:opacity-90 transition-opacity"
+                              width={96}
+                              height={96}
+                              className="w-full h-full object-cover rounded-sm border border-ink/10 cursor-zoom-in hover:opacity-90 transition-opacity"
                               onClick={() => window.open(imageUrl, "_blank")}
                             />
                           </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag,
@@ -84,10 +85,13 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
               {settings.logo?.url ? (
-                <img
+                <Image
                   src={settings.logo.url}
                   alt={siteName}
+                  width={150}
+                  height={40}
                   className="h-8 md:h-10 w-auto object-contain"
+                  priority
                 />
               ) : (
                 <>
@@ -161,9 +165,11 @@ export default function Navbar() {
                   >
                     <div className="w-7 h-7 rounded-full bg-ink text-cream flex items-center justify-center text-xs font-medium overflow-hidden">
                       {user?.avatar ? (
-                        <img
+                        <Image
                           src={user.avatar}
                           alt={user.name}
+                          width={28}
+                          height={28}
                           className="w-full h-full object-cover"
                         />
                       ) : (

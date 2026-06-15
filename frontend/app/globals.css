@@ -73,19 +73,32 @@ body {
 
 /* Shimmer skeleton */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--parchment) 25%,
-    #E8E4D8 50%,
-    var(--parchment) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--parchment);
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer-composite 1.5s infinite;
+}
+
+@keyframes shimmer-composite {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Ink border style */

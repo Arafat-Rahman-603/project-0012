@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, ShoppingBag, Minus, Plus, Trash2, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 
 export default function CartDrawer() {
@@ -111,9 +112,11 @@ export default function CartDrawer() {
                         {/* Image */}
                         <div className="w-18 h-18 w-[72px] h-[72px] bg-parchment rounded-sm overflow-hidden shrink-0">
                           {item.product.images?.[0] ? (
-                            <img
+                            <Image
                               src={item.product.images[0].url}
                               alt={item.product.name}
+                              width={72}
+                              height={72}
                               className="w-full h-full object-cover"
                             />
                           ) : (
