@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
+import Script from "next/script";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
@@ -41,6 +42,20 @@ export default function RootLayout({
             },
           }}
         />
+         
+         <Script type="text/javascript">
+    (function() {
+      var t = document.createElement("script");
+      t.type = "text/javascript", t.async = !0, t.src = 'https://link.msgsndr.com/js/am.js', t.onload = t.onreadystatechange = function() {
+          var t = this.readyState;
+          if (!t || "complete" == t || "loaded" == t) try {
+            affiliateManager.init('ZWUapUT1Pn3m0ElLqa2p', 'https://backend.leadconnectorhq.com', '.fancyplanet.vercel.app')
+          } catch (t) {}
+      };
+      var e = document.getElementsByTagName("script")[0];
+      e.parentNode.insertBefore(t, e)
+  })();
+</Script>
       </body>
     </html>
   );
