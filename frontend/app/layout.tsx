@@ -43,19 +43,37 @@ export default function RootLayout({
           }}
         />
          
-         <Script type="text/javascript">
-    (function() {
-      var t = document.createElement("script");
-      t.type = "text/javascript", t.async = !0, t.src = 'https://link.msgsndr.com/js/am.js', t.onload = t.onreadystatechange = function() {
-          var t = this.readyState;
-          if (!t || "complete" == t || "loaded" == t) try {
-            affiliateManager.init('ZWUapUT1Pn3m0ElLqa2p', 'https://backend.leadconnectorhq.com', '.fancyplanet.vercel.app')
-          } catch (t) {}
-      };
-      var e = document.getElementsByTagName("script")[0];
-      e.parentNode.insertBefore(t, e)
-  })();
-</Script>
+        <Script
+  id="affiliate-manager"
+  strategy="afterInteractive"
+  dangerouslySetInnerHTML={{
+    __html: `
+      (function() {
+        var t = document.createElement("script");
+        t.type = "text/javascript";
+        t.async = true;
+        t.src = "https://link.msgsndr.com/js/am.js";
+
+        t.onload = t.onreadystatechange = function() {
+          var state = this.readyState;
+
+          if (!state || state === "complete" || state === "loaded") {
+            try {
+              affiliateManager.init(
+                "ZWUapUT1Pn3m0ElLqa2p",
+                "https://backend.leadconnectorhq.com",
+                ".fancyplanet.vercel.app"
+              );
+            } catch (e) {}
+          }
+        };
+
+        var firstScript = document.getElementsByTagName("script")[0];
+        firstScript.parentNode.insertBefore(t, firstScript);
+      })();
+    `,
+  }}
+/>
       </body>
     </html>
   );
