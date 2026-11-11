@@ -85,14 +85,17 @@ export default function OrdersClient() {
   }, [isReady, isAuthenticated]);
 
   const handleCancel = async (id: string) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
       await ordersApi.cancel(id);
       setOrders((prev) =>
-        prev.map((o) => (o._id === id ? { ...o, status: "cancelled" } : o))
+        prev.map((o) =>
+          o._id === id ? { ...o, status: "cancelled", orderStatus: "cancelled" } : o
+        )
       );
-      toast.success("Order cancelled");
-    } catch {
-      toast.error("Cannot cancel this order");
+      toast.success("Order cancelled successfully");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Cannot cancel this order");
     }
   };
 

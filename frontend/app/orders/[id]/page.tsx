@@ -48,11 +48,14 @@ export default function OrderDetailPage() {
   }, [id, isAuthenticated]);
 
   const handleCancel = async () => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
     try {
       await ordersApi.cancel(id);
-      setOrder(prev => prev ? { ...prev, status: "cancelled" } : null);
-      toast.success("Order cancelled");
-    } catch { toast.error("Cannot cancel this order"); }
+      setOrder(prev => prev ? { ...prev, status: "cancelled", orderStatus: "cancelled" } : null);
+      toast.success("Order cancelled successfully");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Cannot cancel this order");
+    }
   };
 
   if (isLoading) return (
@@ -258,7 +261,7 @@ export default function OrderDetailPage() {
           )}
 
           {/* Cancel */}
-          {["pending", "processing"].includes(status) && (
+          {["pending", "confirmed", "processing"].includes(status) && (
             <div className="mt-6 pt-6 border-t border-ink/10 flex justify-end">
               <button onClick={handleCancel}
                 className="text-sm text-red-500 hover:text-red-600 border border-red-200 hover:border-red-300 px-5 py-2 rounded-sm transition-colors">

@@ -234,27 +234,48 @@ exports.cancelOrder = async (req, res, next) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
-    if (order.user.toString() !== req.user._id.toString()) {
+    const isOwner = order.user && order.user.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ success: false, message: "Access denied." });
     }
 
-    if (!["pending", "confirmed"].includes(order.orderStatus)) {
+    if (["shipped", "delivered", "cancelled", "refunded"].includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Order cannot be cancelled because it is already ${order.orderStatus}.`,
+      });
+    }
+
+    if (order.courier?.trackingCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Order has already been dispatched to courier and cannot be cancelled automatically. Please contact support.",
+      });
+    }
+
+    if (!["pending", "confirmed", "processing"].includes(order.orderStatus)) {
       return res.status(400).json({ success: false, message: "Order cannot be cancelled at this stage." });
     }
 
     order.orderStatus = "cancelled";
     order.cancelledAt = new Date();
-    order.cancelReason = req.body.reason || "Cancelled by customer";
+    order.cancelReason = req.body.reason || (isAdmin ? "Cancelled by administrator" : "Cancelled by customer");
     await order.save();
 
-    // Restore stock
-    for (const item of order.items) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { stock: item.quantity, soldCount: -item.quantity },
-      });
+    // Restore stock safely
+    if (Array.isArray(order.items)) {
+      for (const item of order.items) {
+        if (item.product) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: item.quantity, soldCount: -item.quantity },
+          });
+        }
+      }
     }
 
-    res.json({ success: true, message: "Order cancelled.", order });
+    res.json({ success: true, message: "Order cancelled successfully.", order });
   } catch (error) {
     next(error);
   }

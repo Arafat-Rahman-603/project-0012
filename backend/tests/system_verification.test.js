@@ -217,3 +217,112 @@ test("Passport Google OAuth - Guard prevents crash when credentials missing", ()
     require("../src/config/passport");
   });
 });
+
+test("Order Cancellation - Lifecycle, Stock Restoration & Access Control", async (t) => {
+  const { cancelOrder } = require("../src/controllers/orderController");
+  const Order = require("../src/models/Order");
+  const Product = require("../src/models/Product");
+
+  const originalFindOrder = Order.findById;
+  const originalUpdateProduct = Product.findByIdAndUpdate;
+
+  t.after(() => {
+    Order.findById = originalFindOrder;
+    Product.findByIdAndUpdate = originalUpdateProduct;
+  });
+
+  const restoredStock = [];
+  Product.findByIdAndUpdate = async (id, update) => {
+    restoredStock.push({ id, update });
+    return { _id: id };
+  };
+
+  const createMockRes = () => {
+    const res = {
+      statusCode: 200,
+      jsonData: null,
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json(data) {
+        this.jsonData = data;
+        return this;
+      },
+    };
+    return res;
+  };
+
+  // 1. Owner cancels pending order -> success & stock restored
+  const mockPendingOrder = {
+    _id: "order_123",
+    user: "user_owner",
+    orderStatus: "pending",
+    items: [
+      { product: "prod_1", quantity: 2 },
+      { product: "prod_2", quantity: 1 },
+    ],
+    save: async function () { return this; },
+  };
+
+  Order.findById = async () => mockPendingOrder;
+
+  const req1 = {
+    params: { id: "order_123" },
+    user: { _id: "user_owner", role: "customer" },
+    body: { reason: "Customer changed mind" },
+  };
+  const res1 = createMockRes();
+
+  await cancelOrder(req1, res1, () => {});
+
+  assert.strictEqual(res1.statusCode, 200);
+  assert.strictEqual(res1.jsonData.success, true);
+  assert.strictEqual(mockPendingOrder.orderStatus, "cancelled");
+  assert.strictEqual(mockPendingOrder.cancelReason, "Customer changed mind");
+  assert.strictEqual(restoredStock.length, 2);
+  assert.strictEqual(restoredStock[0].update.$inc.stock, 2);
+  assert.strictEqual(restoredStock[0].update.$inc.soldCount, -2);
+
+  // 2. Non-owner cannot cancel -> 403 Access denied
+  const req2 = {
+    params: { id: "order_123" },
+    user: { _id: "other_user", role: "customer" },
+    body: {},
+  };
+  const res2 = createMockRes();
+  await cancelOrder(req2, res2, () => {});
+  assert.strictEqual(res2.statusCode, 403);
+  assert.strictEqual(res2.jsonData.message, "Access denied.");
+
+  // 3. Admin can cancel any order -> 200
+  const req3 = {
+    params: { id: "order_123" },
+    user: { _id: "admin_user", role: "admin" },
+    body: {},
+  };
+  mockPendingOrder.orderStatus = "processing";
+  const res3 = createMockRes();
+  await cancelOrder(req3, res3, () => {});
+  assert.strictEqual(res3.statusCode, 200);
+
+  // 4. Shipped order cannot be cancelled -> 400
+  mockPendingOrder.orderStatus = "shipped";
+  const req4 = {
+    params: { id: "order_123" },
+    user: { _id: "user_owner", role: "customer" },
+    body: {},
+  };
+  const res4 = createMockRes();
+  await cancelOrder(req4, res4, () => {});
+  assert.strictEqual(res4.statusCode, 400);
+  assert.match(res4.jsonData.message, /already shipped/);
+
+  // 5. Courier dispatched order cannot be cancelled -> 400
+  mockPendingOrder.orderStatus = "confirmed";
+  mockPendingOrder.courier = { trackingCode: "STDF123456" };
+  const res5 = createMockRes();
+  await cancelOrder(req4, res5, () => {});
+  assert.strictEqual(res5.statusCode, 400);
+  assert.match(res5.jsonData.message, /dispatched to courier/);
+});

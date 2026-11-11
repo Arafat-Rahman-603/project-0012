@@ -55,8 +55,8 @@ export default function OrderDetailScreen() {
             const { data } = await ordersApi.cancel(order._id);
             setOrder(normalizeOrder(data.order || data.data || data));
             success("Order cancelled");
-          } catch {
-            showError("Failed to cancel order");
+          } catch (err: any) {
+            showError(err?.response?.data?.message || "Failed to cancel order");
           } finally {
             setCancelling(false);
           }
@@ -76,7 +76,7 @@ export default function OrderDetailScreen() {
   const status = getOrderStatus(order);
   const statusColor = STATUS_COLOR[status] || Colors.textMuted;
   const statusIdx = STATUS_STEPS.indexOf(status);
-  const canCancel = ["pending", "confirmed"].includes(status);
+  const canCancel = ["pending", "confirmed", "processing"].includes(status);
 
   return (
     <View style={styles.container}>
