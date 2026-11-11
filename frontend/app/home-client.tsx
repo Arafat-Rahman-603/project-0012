@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Sparkles, Shield, Truck, RotateCcw } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, Truck, RotateCcw, Zap, ShoppingBag } from "lucide-react";
 import { productsApi, categoriesApi } from "@/lib/api";
 import { Product, Category } from "@/types";
 import ProductCard from "@/components/product/ProductCard";
@@ -11,9 +11,9 @@ import { extractList } from "@/lib/listResponse";
 import { defaultSiteSettings, useSiteSettings } from "@/hooks/useSiteSettings";
 
 const fallbackBannerImages = [
-  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=85",
-  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1800&q=85",
-  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1800&q=85",
+  "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1920&q=85",
+  "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1920&q=85",
+  "https://images.unsplash.com/photo-1552066344-2464c1135c32?auto=format&fit=crop&w=1920&q=85",
 ];
 
 export default function HomeClient() {
@@ -107,8 +107,8 @@ export default function HomeClient() {
               transition={{ delay: 0.1, duration: 0.5 }}
               className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-amber-200 mb-4 px-3 py-1 bg-amber/15 rounded-sm border border-amber/30 backdrop-blur-xs"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber" />
-              {settings.siteName || defaultSiteSettings.siteName}
+              <Zap className="w-3.5 h-3.5 text-amber" />
+              2026 Kits & Streetwear Drop • {settings.siteName || defaultSiteSettings.siteName}
             </motion.div>
 
             <AnimatePresence mode="wait">
@@ -169,12 +169,12 @@ export default function HomeClient() {
               </div>
             )}
 
-            {/* In-flow Stats Bar */}
+            {/* In-flow Value Proposition Bar */}
             <div className="mt-8 sm:mt-12 pt-6 border-t border-cream/20 flex flex-wrap gap-6 sm:gap-12">
               {[
-                { value: "10k+", label: "Products" },
-                { value: "99%", label: "Satisfaction" },
-                { value: "64", label: "Districts" },
+                { value: "100%", label: "Authentic Kits" },
+                { value: "Fast COD", label: "Cash on Delivery" },
+                { value: "64", label: "Districts Delivery" },
               ].map((stat) => (
                 <div key={stat.label}>
                   <p
@@ -244,8 +244,8 @@ export default function HomeClient() {
                       className="w-11 h-11 rounded-sm object-cover shrink-0"
                     />
                   ) : (
-                    <div className="w-11 h-11 rounded-sm bg-ink/10 group-hover:bg-cream/10 flex items-center justify-center text-lg shrink-0">
-                      🛍
+                    <div className="w-11 h-11 rounded-sm bg-amber/10 group-hover:bg-cream/10 flex items-center justify-center shrink-0 transition-colors">
+                      <ShoppingBag className="w-5 h-5 text-amber group-hover:text-cream" />
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
@@ -330,23 +330,23 @@ export default function HomeClient() {
             {[
               {
                 icon: Truck,
-                title: "Free Delivery",
-                desc: "On orders over ৳2,000",
+                title: "Nationwide Delivery",
+                desc: "Steadfast & Pathao express across BD",
               },
               {
                 icon: Shield,
-                title: "Secure Payment",
-                desc: "Cash on delivery & bKash",
+                title: "Cash on Delivery",
+                desc: "Check parcel before payment",
               },
               {
                 icon: RotateCcw,
-                title: "Easy Returns",
-                desc: "7-day return policy",
+                title: "Easy Size Exchange",
+                desc: "3-day hassle-free replacement",
               },
               {
                 icon: Sparkles,
-                title: "Premium Quality",
-                desc: "100% authentic curated goods",
+                title: "100% Authentic Quality",
+                desc: "Premium player & fan edition gear",
               },
             ].map((item, i) => (
               <motion.div
@@ -385,16 +385,16 @@ export default function HomeClient() {
           className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center"
         >
           <p className="text-[11px] font-bold tracking-widest uppercase text-amber mb-2.5">
-            Limited Time
+            ⚡ VIP Drop Access
           </p>
           <h2
             className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Join Next Shop
+            Join the Next Shop Squad
           </h2>
           <p className="text-cream/70 text-xs sm:text-sm mb-6 max-w-md mx-auto">
-            Get early access to new product drops, festive collections, and exclusive member offers.
+            Get instant access to limited jersey releases, match-day specials, and exclusive member discounts across Bangladesh.
           </p>
           <Link
             href="/register"

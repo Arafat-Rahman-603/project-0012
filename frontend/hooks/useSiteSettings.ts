@@ -6,8 +6,8 @@ import type { SiteSettings } from "@/types";
 
 export const defaultSiteSettings: SiteSettings = {
   siteName: "Next Shop",
-  heroTitle: "Curated Luxury & Modern Lifestyle",
-  heroSubtitle: "Discover handpicked premium apparel, accessories, and curated essentials for every occasion with fast nationwide delivery.",
+  heroTitle: "Authentic Jerseys & Premium Streetwear",
+  heroSubtitle: "Explore the latest club and international kits, match-day player editions, and modern streetwear with nationwide express Cash-on-Delivery across all 64 districts in Bangladesh.",
   heroCtaText: "Shop Collection",
   heroCtaHref: "/products",
   banners: [],
@@ -18,7 +18,7 @@ export const defaultSiteSettings: SiteSettings = {
   facebookUrl: "https://facebook.com",
   instagramUrl: "https://instagram.com",
   whatsappNumber: "+8801700000000",
-  announcementText: "✨ Free Express Delivery on orders over ৳2,000 across all 64 districts!",
+  announcementText: "⚡ New Season Football Kits & Premium Streetwear Dropped! Cash-on-Delivery Across Bangladesh",
   showAnnouncement: true,
   announcementBg: "#D97706",
   announcementColor: "#FFFFFF",

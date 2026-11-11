@@ -22,22 +22,22 @@ import { useAuthStore } from "@/store/authStore";
 import { useToast, Toast } from "@/components/ui/Toast";
 
 const DEFAULT_BANNERS = [
-  "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1000&q=80",
+  "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80",
+  "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1000&q=80",
+  "https://images.unsplash.com/photo-1552066344-2464c1135c32?auto=format&fit=crop&w=1000&q=80",
 ];
 
 const STATS = [
-  { value: "10k+", label: "Products" },
-  { value: "99%", label: "Happy Clients" },
-  { value: "64", label: "Districts" },
+  { value: "100%", label: "Authentic Kits" },
+  { value: "Fast COD", label: "Cash on Delivery" },
+  { value: "64", label: "Districts Coverage" },
 ];
 
 const TRUST = [
-  { icon: "car-outline", title: "Free Delivery", desc: "On orders over ৳2,000" },
-  { icon: "shield-checkmark-outline", title: "Secure Payment", desc: "Cash on delivery & secure bKash" },
-  { icon: "refresh-outline", title: "Easy Returns", desc: "7-day return policy" },
-  { icon: "sparkles-outline", title: "Premium Quality", desc: "100% authentic curated goods" },
+  { icon: "car-outline", title: "Nationwide Delivery", desc: "Steadfast & Pathao express across BD" },
+  { icon: "shield-checkmark-outline", title: "Cash on Delivery", desc: "Check parcel before payment" },
+  { icon: "refresh-outline", title: "Easy Size Exchange", desc: "3-day hassle-free replacement" },
+  { icon: "sparkles-outline", title: "100% Authentic Quality", desc: "Premium player & fan edition gear" },
 ];
 
 export default function HomeScreen() {
