@@ -289,7 +289,7 @@ export default function HomeClient() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="space-y-2.5">
-                  <div className="skeleton aspect-[4/5] rounded-sm" />
+                  <div className="skeleton aspect-square rounded-sm" />
                   <div className="skeleton h-3 w-3/4 rounded" />
                   <div className="skeleton h-3 w-1/2 rounded" />
                 </div>

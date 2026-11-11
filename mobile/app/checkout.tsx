@@ -36,6 +36,9 @@ export default function CheckoutScreen() {
     postalCode: "",
     country: "BD",
   });
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bkash">("cod");
+  const [bkashNumber, setBkashNumber] = useState("");
+  const [bkashTrxId, setBkashTrxId] = useState("");
   const [placing, setPlacing] = useState(false);
 
   useEffect(() => {
@@ -71,8 +74,12 @@ export default function CheckoutScreen() {
 
   const items = cart?.items ?? [];
   const total = cart?.totalPrice ?? 0;
-  const delivery = total >= 2000 ? 0 : 60;
-  const grandTotal = total + delivery;
+  const discount = paymentMethod === "bkash" ? Math.round(total * 0.30) : 0;
+  const discountedTotal = Math.max(0, total - discount);
+  const delivery = discountedTotal >= 2000 ? 0 : 80;
+  const grandTotal = discountedTotal + delivery;
+  const advanceAmount = paymentMethod === "bkash" ? Math.max(100, Math.min(grandTotal, 100)) : 0;
+  const dueAmount = Math.max(0, grandTotal - advanceAmount);
 
   if (isLoading && !cart) {
     return (
@@ -102,6 +109,15 @@ export default function CheckoutScreen() {
     if (!form.addressLine1.trim()) return showError("Delivery Address is required");
     if (!form.city.trim()) return showError("City / District is required");
 
+    if (paymentMethod === "bkash") {
+      if (!bkashNumber.trim() || bkashNumber.trim().length < 11) {
+        return showError("Please enter a valid 11-digit bKash account number");
+      }
+      if (!bkashTrxId.trim() || bkashTrxId.trim().length < 4) {
+        return showError("Please enter your bKash Transaction ID (TrxID)");
+      }
+    }
+
     setPlacing(true);
     try {
       await ordersApi.create({
@@ -114,10 +130,13 @@ export default function CheckoutScreen() {
           postalCode: form.postalCode.trim() || "1000",
           country: "BD",
         },
-        paymentMethod: "cod",
+        paymentMethod,
+        bkashNumber: paymentMethod === "bkash" ? bkashNumber.trim() : undefined,
+        bkashTrxId: paymentMethod === "bkash" ? bkashTrxId.trim().toUpperCase() : undefined,
+        advanceAmount: paymentMethod === "bkash" ? advanceAmount : undefined,
       });
       await clearCart();
-      success("Order placed successfully!");
+      success(paymentMethod === "bkash" ? "Order placed! 30% bKash discount applied." : "Order placed successfully!");
       // Navigate to orders tab list
       setTimeout(() => {
         router.replace("/orders");
@@ -178,15 +197,77 @@ export default function CheckoutScreen() {
         {/* Payment details */}
         <View style={styles.paymentSection}>
           <Text style={styles.sectionHeading}>Payment Method</Text>
-          <View style={styles.codCard}>
+
+          {/* COD Option */}
+          <TouchableOpacity
+            onPress={() => setPaymentMethod("cod")}
+            style={[styles.codCard, paymentMethod === "cod" && styles.selectedPaymentCard]}
+          >
             <View style={styles.codHeader}>
-              <Ionicons name="cash-outline" size={20} color={Colors.amber} />
+              <Ionicons
+                name={paymentMethod === "cod" ? "radio-button-on" : "radio-button-off"}
+                size={18}
+                color={paymentMethod === "cod" ? Colors.ink : Colors.textMuted}
+              />
               <Text style={styles.codTitle}>Cash on Delivery (COD)</Text>
             </View>
             <Text style={styles.codDesc}>
-              Pay with cash when your package is delivered to your doorstep.
+              Pay with cash when rider delivers to your doorstep. Standard regular price.
             </Text>
-          </View>
+          </TouchableOpacity>
+
+          {/* bKash Option */}
+          <TouchableOpacity
+            onPress={() => setPaymentMethod("bkash")}
+            style={[
+              styles.codCard,
+              { marginTop: 10 },
+              paymentMethod === "bkash" && styles.selectedPaymentCard,
+            ]}
+          >
+            <View style={styles.codHeader}>
+              <Ionicons
+                name={paymentMethod === "bkash" ? "radio-button-on" : "radio-button-off"}
+                size={18}
+                color={paymentMethod === "bkash" ? Colors.amber : Colors.textMuted}
+              />
+              <Text style={styles.codTitle}>bKash (Pay Advance & Save 30%)</Text>
+            </View>
+            <Text style={styles.codDesc}>
+              Pay minimum ৳100 advance deposit via bKash to unlock 30% instant discount!
+            </Text>
+          </TouchableOpacity>
+
+          {/* bKash Input Fields */}
+          {paymentMethod === "bkash" && (
+            <View style={styles.bkashBox}>
+              <Text style={styles.bkashNotice}>
+                Send at least ৳{advanceAmount} to bKash Merchant: 01700-000000
+              </Text>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>YOUR BKASH PHONE NUMBER</Text>
+                <TextInput
+                  style={styles.input}
+                  value={bkashNumber}
+                  onChangeText={setBkashNumber}
+                  placeholder="01XXXXXXXXX"
+                  placeholderTextColor={Colors.textLight}
+                  keyboardType="phone-pad"
+                />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>BKASH TRANSACTION ID (TRXID)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={bkashTrxId}
+                  onChangeText={(t) => setBkashTrxId(t.toUpperCase())}
+                  placeholder="e.g. 8N7X2KL9PQ"
+                  placeholderTextColor={Colors.textLight}
+                  autoCapitalize="characters"
+                />
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Summary Details */}
@@ -210,6 +291,14 @@ export default function CheckoutScreen() {
             <Text style={styles.costLabel}>Items Subtotal</Text>
             <Text style={styles.costValue}>৳{total.toLocaleString()}</Text>
           </View>
+          {paymentMethod === "bkash" && (
+            <View style={styles.costRow}>
+              <Text style={[styles.costLabel, { color: Colors.amber }]}>bKash 30% Advance Discount</Text>
+              <Text style={[styles.costValue, { color: Colors.amber, fontFamily: Typography.bodyBold }]}>
+                -৳{discount.toLocaleString()}
+              </Text>
+            </View>
+          )}
           <View style={styles.costRow}>
             <Text style={styles.costLabel}>Delivery Fee</Text>
             <Text style={[styles.costValue, delivery === 0 && { color: Colors.success }]}>
@@ -218,9 +307,21 @@ export default function CheckoutScreen() {
           </View>
 
           <View style={[styles.costRow, styles.grandTotalRow]}>
-            <Text style={styles.grandTotalLabel}>Total Pay</Text>
+            <Text style={styles.grandTotalLabel}>Total Order Value</Text>
             <Text style={styles.grandTotalValue}>৳{grandTotal.toLocaleString()}</Text>
           </View>
+          {paymentMethod === "bkash" && (
+            <View style={{ marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: Colors.border, gap: 4 }}>
+              <View style={styles.costRow}>
+                <Text style={[styles.costLabel, { color: Colors.amber }]}>Advance to Pay via bKash:</Text>
+                <Text style={[styles.costValue, { color: Colors.amber }]}>৳{advanceAmount.toLocaleString()}</Text>
+              </View>
+              <View style={styles.costRow}>
+                <Text style={styles.costLabel}>Due on Delivery (COD):</Text>
+                <Text style={[styles.costValue, { fontFamily: Typography.bodyBold }]}>৳{dueAmount.toLocaleString()}</Text>
+              </View>
+            </View>
+          )}
         </View>
 
         <View style={{ height: 160 }} />

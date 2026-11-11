@@ -81,7 +81,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="relative overflow-hidden bg-[#FAF8F5] border border-ink/5 rounded-md aspect-[4/5] flex items-center justify-center"
+          className="relative overflow-hidden bg-[#FAF8F5] border border-ink/5 rounded-md aspect-square flex items-center justify-center"
         >
           {isHovered && product.images && product.images.length > 1 ? (
             <ProductCardImageSwiper images={product.images} alt={product.name} />
@@ -101,20 +101,15 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
             </div>
           )}
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-            {isFeatured && (
-              <span className="text-[10px] font-semibold tracking-widest uppercase bg-amber text-ink px-2.5 py-1 rounded-sm shadow-xs">
-                Featured
-              </span>
-            )}
+          {/* Badges: Clean minimal discount or sold out */}
+          <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1">
             {discountPct > 0 && (
-              <span className="text-[10px] font-semibold tracking-widest uppercase bg-ink text-cream px-2 py-1 rounded-sm shadow-xs">
+              <span className="text-[10px] font-bold tracking-wider bg-ink text-cream px-2 py-0.5 rounded-xs shadow-xs">
                 -{discountPct}%
               </span>
             )}
             {product.stock === 0 && (
-              <span className="text-[10px] font-semibold tracking-widest uppercase bg-parchment text-ink/60 px-2 py-1 rounded-sm shadow-xs">
+              <span className="text-[10px] font-semibold tracking-wider uppercase bg-ink/75 text-cream px-2 py-0.5 rounded-xs shadow-xs">
                 Sold Out
               </span>
             )}

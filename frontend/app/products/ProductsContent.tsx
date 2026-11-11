@@ -589,7 +589,7 @@ export default function ProductsContent() {
               >
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div key={i} className="space-y-3">
-                    <div className="skeleton aspect-[4/5] rounded-sm" />
+                    <div className="skeleton aspect-square rounded-sm" />
                     <div className="skeleton h-3 w-3/4 rounded" />
                     <div className="skeleton h-3 w-1/2 rounded" />
                   </div>
