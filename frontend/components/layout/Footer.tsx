@@ -42,8 +42,8 @@ export default function Footer() {
   contactLinks.push({ label: "FAQ", href: "#" });
 
   return (
-    <footer className="bg-ink text-cream mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+    <footer className="bg-ink text-cream border-t border-cream/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-14">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">

@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
   const ratingDistribution = getRatingDistribution(product.reviews || []);
 
   return (
-    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+    <div className="pt-15 sm:pt-16 md:pt-18 pb-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs sm:text-sm text-ink/40 mb-4 sm:mb-6">

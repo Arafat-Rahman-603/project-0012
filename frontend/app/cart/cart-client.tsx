@@ -109,7 +109,7 @@ export default function CartClient() {
   }
 
   return (
-    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+    <div className="pt-15 sm:pt-16 md:pt-18 pb-16 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         {/* Progress */}
         <div className="flex items-center gap-4 mb-6 md:mb-8">

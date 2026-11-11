@@ -105,7 +105,7 @@ export default function OrdersClient() {
   }
 
   return (
-    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+    <div className="pt-15 sm:pt-16 md:pt-18 pb-16 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

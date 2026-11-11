@@ -109,7 +109,7 @@ export default function ProfileContent() {
   if (!user) return null;
 
   return (
-    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+    <div className="pt-15 sm:pt-16 md:pt-18 pb-16 min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex items-center gap-5">
           <div className="relative group">
