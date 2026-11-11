@@ -194,10 +194,10 @@ export default function ProductDetailPage() {
   const ratingDistribution = getRatingDistribution(product.reviews || []);
 
   return (
-    <div className="pt-20 md:pt-24 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-ink/40 mb-8">
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-ink/40 mb-4 sm:mb-6">
           <Link href="/" className="hover:text-ink transition-colors">Home</Link>
           <span>/</span>
           <Link href="/products" className="hover:text-ink transition-colors">Products</Link>

@@ -57,9 +57,9 @@ export default function DashboardClient() {
   const wishlistCount = user.wishlist?.length || 0;
 
   return (
-    <div className="pt-20 md:pt-24 min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-6 md:mb-8">
           <div className="flex items-center gap-2 text-ink/40 text-sm mb-2">
             <LayoutDashboard className="w-4 h-4" />
             <span>Account</span>

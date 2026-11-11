@@ -105,14 +105,14 @@ export default function OrdersClient() {
   }
 
   return (
-    <div className="pt-20 md:pt-24 min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="mb-8">
+          <div className="mb-6">
             <h1
               className="text-3xl font-bold"
               style={{ fontFamily: "var(--font-display)" }}

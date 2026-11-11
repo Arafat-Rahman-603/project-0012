@@ -109,9 +109,9 @@ export default function ProfileContent() {
   if (!user) return null;
 
   return (
-    <div className="pt-20 md:pt-24 min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center gap-5">
+    <div className="pt-15 sm:pt-16 md:pt-18 min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex items-center gap-5">
           <div className="relative group">
             <div className="w-20 h-20 rounded-full bg-ink text-cream flex items-center justify-center text-3xl font-bold overflow-hidden">
               {user.avatar

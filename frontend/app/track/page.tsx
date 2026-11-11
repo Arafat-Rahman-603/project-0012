@@ -83,26 +83,26 @@ function TrackingForm() {
   const currentStepIdx = statusKeys.indexOf(currentStatus);
 
   return (
-    <div className="pt-24 pb-20 min-h-screen">
+    <div className="pt-15 sm:pt-16 md:pt-18 pb-16 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center max-w-xl mx-auto mb-10">
+        <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
           <span className="text-xs font-semibold uppercase tracking-widest text-amber">
             Delivery Tracking
           </span>
           <h1
-            className="text-3xl md:text-4xl font-bold mt-2 mb-3"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold mt-1.5 mb-2.5"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Track Your Order
           </h1>
-          <p className="text-ink/60 text-sm">
+          <p className="text-ink/60 text-xs sm:text-sm">
             Enter your Order Number and Contact Phone to track live delivery status and courier updates.
           </p>
         </div>
 
         {/* Search Box */}
-        <div className="bg-parchment/60 border border-ink/10 rounded-sm p-6 sm:p-8 mb-10 shadow-sm">
+        <div className="bg-parchment/60 border border-ink/10 rounded-sm p-5 sm:p-7 mb-8 shadow-sm">
           <form onSubmit={handleTrack} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-ink/60 mb-1.5">
