@@ -81,7 +81,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="relative overflow-hidden bg-[#FAF8F5] border border-ink/5 rounded-sm aspect-[4/5] flex items-center justify-center p-2.5"
+          className="relative overflow-hidden bg-[#FAF8F5] border border-ink/5 rounded-md aspect-[4/5] flex items-center justify-center"
         >
           {isHovered && product.images && product.images.length > 1 ? (
             <ProductCardImageSwiper images={product.images} alt={product.name} />
@@ -93,7 +93,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
               sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={index < 4}
               fetchPriority={index < 4 ? "high" : "low"}
-              className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+              className="object-contain p-1 transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-parchment">
@@ -102,19 +102,19 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
           )}
 
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
             {isFeatured && (
-              <span className="text-[10px] font-semibold tracking-widest uppercase bg-amber text-ink px-2 py-1 rounded-sm">
+              <span className="text-[10px] font-semibold tracking-widest uppercase bg-amber text-ink px-2.5 py-1 rounded-sm shadow-xs">
                 Featured
               </span>
             )}
             {discountPct > 0 && (
-              <span className="text-[10px] font-semibold tracking-widest uppercase bg-ink text-cream px-2 py-1 rounded-sm">
+              <span className="text-[10px] font-semibold tracking-widest uppercase bg-ink text-cream px-2 py-1 rounded-sm shadow-xs">
                 -{discountPct}%
               </span>
             )}
             {product.stock === 0 && (
-              <span className="text-[10px] font-semibold tracking-widest uppercase bg-parchment text-ink/60 px-2 py-1 rounded-sm">
+              <span className="text-[10px] font-semibold tracking-widest uppercase bg-parchment text-ink/60 px-2 py-1 rounded-sm shadow-xs">
                 Sold Out
               </span>
             )}
@@ -123,7 +123,8 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
           {/* Wishlist button */}
           <button
             onClick={handleWishlist}
-            className="absolute top-3 right-3 w-8 h-8 bg-cream/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-cream hover:scale-110"
+            aria-label="Add to wishlist"
+            className="absolute top-3 right-3 z-10 w-8 h-8 bg-cream/90 backdrop-blur-sm shadow-xs border border-ink/10 rounded-full flex items-center justify-center transition-all hover:bg-cream hover:scale-110 active:scale-95"
           >
             <Heart
               className={`w-4 h-4 transition-colors ${
@@ -132,15 +133,16 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
             />
           </button>
 
-          {/* Quick Add */}
-          <motion.button
+          {/* Floating Quick Add */}
+          <button
             onClick={handleAddToCart}
             disabled={product.stock === 0 || addingToCart}
-            className="absolute bottom-0 left-0 right-0 py-2.5 bg-ink/95 text-cream text-xs font-medium tracking-wide translate-y-full group-hover:translate-y-0 transition-transform duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            aria-label="Add to cart"
+            title={product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+            className="absolute bottom-3 right-3 z-10 w-9 h-9 bg-cream/95 hover:bg-ink text-ink hover:text-cream shadow-md border border-ink/10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            {addingToCart ? "Adding…" : product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-          </motion.button>
+            <ShoppingBag className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Info */}

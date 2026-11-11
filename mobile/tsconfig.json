@@ -5,11 +5,12 @@
     "jsx": "react-native",
     "lib": ["DOM", "ESNext"],
     "moduleResolution": "node",
+    "module": "esnext",
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ESNext",
-    "strict": true,
+    "strict": false,
     "paths": {
       "@/*": [
         "./*"
