@@ -28,16 +28,16 @@ const DEFAULT_BANNERS = [
 ];
 
 const STATS = [
-  { value: "500+", label: "Sarees" },
-  { value: "98%", label: "Happy Clients" },
-  { value: "25+", label: "Collections" },
+  { value: "10k+", label: "Products" },
+  { value: "99%", label: "Happy Clients" },
+  { value: "64", label: "Districts" },
 ];
 
 const TRUST = [
   { icon: "car-outline", title: "Free Delivery", desc: "On orders over ৳2,000" },
-  { icon: "shield-checkmark-outline", title: "Secure Payment", desc: "256-bit SSL encryption" },
-  { icon: "refresh-outline", title: "Easy Returns", desc: "30-day return policy" },
-  { icon: "sparkles-outline", title: "Premium Quality", desc: "Curated sarees" },
+  { icon: "shield-checkmark-outline", title: "Secure Payment", desc: "Cash on delivery & secure bKash" },
+  { icon: "refresh-outline", title: "Easy Returns", desc: "7-day return policy" },
+  { icon: "sparkles-outline", title: "Premium Quality", desc: "100% authentic curated goods" },
 ];
 
 export default function HomeScreen() {
@@ -75,7 +75,8 @@ export default function HomeScreen() {
         setFeaturedProducts(extractList<Product>(prodRes.data, "products"));
         setCategories(extractList<Category>(catRes.data, "categories"));
         if (settingsRes && settingsRes.data) {
-          setSettings(settingsRes.data.settings || settingsRes.data);
+          const s = settingsRes.data.data || settingsRes.data.settings || settingsRes.data;
+          setSettings(s);
         }
       } catch (err: any) {
         console.error("[Home Load Error]", err.message || err);
@@ -86,8 +87,8 @@ export default function HomeScreen() {
   }, []);
 
   const siteName = settings?.siteName || "Next Shop";
-  const heroTitle = settings?.heroTitle || "Elegant\nSarees for\nEvery Occasion";
-  const heroSubtitle = settings?.heroSubtitle || "Discover hand-picked sarees from across India";
+  const heroTitle = settings?.heroTitle || "Curated Luxury &\nTimeless Style";
+  const heroSubtitle = settings?.heroSubtitle || "Discover handcrafted lifestyle collections and premium goods";
   const heroCtaText = settings?.heroCtaText || "Shop Now";
 
   const bannerImages = settings?.banners && settings.banners.length > 0
@@ -123,7 +124,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.brandLabel}>{siteName.toUpperCase()}</Text>
-          <Text style={styles.headerTitle}>Discover Sarees</Text>
+          <Text style={styles.headerTitle}>Discover Collections</Text>
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity onPress={() => router.push("/products")} style={styles.iconBtn}>
@@ -246,7 +247,7 @@ export default function HomeScreen() {
         <View style={styles.sectionHeader}>
           <View>
             <Text style={styles.sectionEyebrow}>HAND-PICKED</Text>
-            <Text style={styles.sectionTitle}>Featured Sarees</Text>
+            <Text style={styles.sectionTitle}>Featured Products</Text>
           </View>
           <TouchableOpacity
             onPress={() => router.push("/products?featured=true")}
@@ -271,7 +272,7 @@ export default function HomeScreen() {
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No featured sarees yet</Text>
+            <Text style={styles.emptyText}>No featured products yet</Text>
           </View>
         )}
       </View>
@@ -294,9 +295,9 @@ export default function HomeScreen() {
       {/* CTA Banner */}
       <View style={styles.ctaBanner}>
         <Text style={styles.ctaBannerEyebrow}>LIMITED TIME</Text>
-        <Text style={styles.ctaBannerTitle}>JoinNext Shop</Text>
+        <Text style={styles.ctaBannerTitle}>Join Next Shop</Text>
         <Text style={styles.ctaBannerSub}>
-          Get early access to new saree drops, festive collections, and exclusive offers.
+          Get early access to new product drops, curated collections, and exclusive offers.
         </Text>
         <TouchableOpacity
           onPress={() => router.push(isAuthenticated ? "/products" : "/(auth)/register")}

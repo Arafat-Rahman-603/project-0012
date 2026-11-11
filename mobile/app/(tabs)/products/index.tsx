@@ -15,8 +15,8 @@ const SORT_OPTIONS = [
   { label: "Newest", value: "-createdAt" },
   { label: "Price: Low to High", value: "price" },
   { label: "Price: High to Low", value: "-price" },
-  { label: "Most Popular", value: "-ratings.count" },
-  { label: "Top Rated", value: "-ratings.average" },
+  { label: "Best Selling", value: "-soldCount" },
+  { label: "Top Rated", value: "-rating" },
 ];
 
 const DEFAULT_FILTERS: ProductFilters = {
@@ -102,7 +102,7 @@ export default function ProductsScreen() {
           <Ionicons name="arrow-back" size={22} color={Colors.ink} />
         </TouchableOpacity>
         <Text style={styles.screenTitle}>
-          {filters.search ? `"${filters.search}"` : filters.featured ? "Featured Sarees" : "All Sarees"}
+          {filters.search ? `"${filters.search}"` : filters.featured ? "Featured Products" : "All Products"}
         </Text>
         <View style={{ width: 36 }} />
       </View>
@@ -114,7 +114,7 @@ export default function ProductsScreen() {
           <Ionicons name="search-outline" size={18} color={Colors.textMuted} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search sarees..."
+            placeholder="Search products..."
             placeholderTextColor={Colors.textLight}
             value={searchText}
             onChangeText={setSearchText}

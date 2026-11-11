@@ -8,8 +8,39 @@ import CartDrawer from "@/components/cart/CartDrawer";
 import AuthProvider from "@/components/auth/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "Next Shop | Online Shopping",
-  description: "Buy unique and customize items at Next Shop.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://nextshop.com.bd"),
+  title: {
+    default: "Next Shop | Premium Lifestyle & Fashion in Bangladesh",
+    template: "%s | Next Shop",
+  },
+  description: "Next Shop is Bangladesh's premier shopping destination for curated premium lifestyle collections, apparel, and accessories with nationwide fast home delivery.",
+  keywords: [
+    "Next Shop",
+    "online shopping bangladesh",
+    "bangladesh ecommerce",
+    "steadfast courier delivery",
+    "pathao courier",
+    "premium lifestyle",
+    "fashion bangladesh",
+    "buy online bd",
+  ],
+  openGraph: {
+    title: "Next Shop | Premium Lifestyle & Fashion",
+    description: "Curated collections with fast Cash-on-Delivery across all 64 districts in Bangladesh.",
+    url: "/",
+    siteName: "Next Shop",
+    locale: "en_BD",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Next Shop | Online Shopping Bangladesh",
+    description: "Curated collections with fast Cash-on-Delivery nationwide.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -42,38 +73,6 @@ export default function RootLayout({
             },
           }}
         />
-         
-        <Script
-  id="affiliate-manager"
-  strategy="afterInteractive"
-  dangerouslySetInnerHTML={{
-    __html: `
-      (function() {
-        var t = document.createElement("script");
-        t.type = "text/javascript";
-        t.async = true;
-        t.src = "https://link.msgsndr.com/js/am.js";
-
-        t.onload = t.onreadystatechange = function() {
-          var state = this.readyState;
-
-          if (!state || state === "complete" || state === "loaded") {
-            try {
-              affiliateManager.init(
-                "ZWUapUT1Pn3m0ElLqa2p",
-                "https://backend.leadconnectorhq.com",
-                ".fancyplanet.vercel.app"
-              );
-            } catch (e) {}
-          }
-        };
-
-        var firstScript = document.getElementsByTagName("script")[0];
-        firstScript.parentNode.insertBefore(t, firstScript);
-      })();
-    `,
-  }}
-/>
       </body>
     </html>
   );

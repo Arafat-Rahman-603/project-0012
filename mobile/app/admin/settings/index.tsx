@@ -58,9 +58,9 @@ export default function AdminSettings() {
   }
 
   const FIELDS = [
-    { label: "SITE NAME", value: siteName, setter: setSiteName, placeholder: "e.g.Next Shop" },
-    { label: "HERO TITLE", value: heroTitle, setter: setHeroTitle, placeholder: "e.g. Discover Sarees" },
-    { label: "HERO SUBTITLE", value: heroSubtitle, setter: setHeroSubtitle, placeholder: "e.g. Hand-picked sarees..." },
+    { label: "SITE NAME", value: siteName, setter: setSiteName, placeholder: "e.g. Next Shop" },
+    { label: "HERO TITLE", value: heroTitle, setter: setHeroTitle, placeholder: "e.g. Curated Luxury & Timeless Style" },
+    { label: "HERO SUBTITLE", value: heroSubtitle, setter: setHeroSubtitle, placeholder: "e.g. Handcrafted lifestyle collections..." },
     { label: "CTA BUTTON TEXT", value: heroCtaText, setter: setHeroCtaText, placeholder: "e.g. Shop Now" },
     { label: "CTA BUTTON LINK", value: heroCtaHref, setter: setHeroCtaHref, placeholder: "e.g. /products" },
   ];

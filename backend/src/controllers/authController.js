@@ -354,11 +354,32 @@ exports.googleCallback = async (req, res) => {
       .cookie("accessToken", accessToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 })
       .cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 30 * 24 * 60 * 60 * 1000 });
 
-    const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").split(",")[0].trim();
+    const userObj = user.toObject ? user.toObject() : { ...user };
+    delete userObj.password;
+
     const params = new URLSearchParams({
       accessToken,
       refreshToken,
+      user: JSON.stringify(userObj),
     });
+
+    // Check if mobile redirect requested via state
+    let mobileRedirect = null;
+    if (req.query.state) {
+      try {
+        const parsedState = JSON.parse(req.query.state);
+        if (parsedState?.mobile_redirect) {
+          mobileRedirect = parsedState.mobile_redirect;
+        }
+      } catch (_) {}
+    }
+
+    if (mobileRedirect) {
+      const sep = mobileRedirect.includes("?") ? "&" : "?";
+      return res.redirect(`${mobileRedirect}${sep}${params.toString()}`);
+    }
+
+    const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").split(",")[0].trim();
     res.redirect(`${clientUrl}/auth/callback?${params.toString()}`);
   } catch (error) {
     const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").split(",")[0].trim();

@@ -29,7 +29,7 @@ export default function ProductCardImageSwiper({ images, alt, className = "" }: 
         alt={alt}
         fill
         sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        className={`object-cover transition-transform duration-500 group-hover:scale-105 ${className}`}
+        className={`object-contain p-2 transition-transform duration-500 group-hover:scale-105 ${className}`}
       />
     );
   }
@@ -49,13 +49,13 @@ export default function ProductCardImageSwiper({ images, alt, className = "" }: 
       className={`w-full h-full product-card-swiper ${className}`}
     >
       {images.map((img, i) => (
-        <SwiperSlide key={i}>
+        <SwiperSlide key={i} className="relative w-full h-full flex items-center justify-center">
           <Image
             src={img.url}
             alt={`${alt} ${i + 1}`}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
           />
         </SwiperSlide>
       ))}

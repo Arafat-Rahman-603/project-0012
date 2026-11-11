@@ -92,7 +92,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="track"
         options={{
           href: null,
           tabBarItemStyle: { display: "none" },

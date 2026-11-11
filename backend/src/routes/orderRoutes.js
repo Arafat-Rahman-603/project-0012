@@ -6,6 +6,9 @@ const { uploadOrderNoteImage } = require("../config/cloudinary");
 
 // ── Static / prefix routes MUST come before /:id ──────────────────────────────
 
+// Public tracking lookup route (MUST come before /:id)
+router.get("/track/lookup", orderController.trackPublicOrder);
+
 // User routes
 router.post("/", protect, uploadOrderNoteImage, orderController.createOrder);
 router.get("/my", protect, orderController.getMyOrders);
@@ -18,5 +21,7 @@ router.get("/", protect, restrictTo("admin"), orderController.getAllOrders);
 router.get("/:id", protect, orderController.getOrder);
 router.put("/:id/cancel", protect, orderController.cancelOrder);
 router.put("/:id/status", protect, restrictTo("admin"), orderController.updateOrderStatus);
+router.post("/:id/courier/dispatch", protect, restrictTo("admin"), orderController.dispatchOrderToCourier);
+router.get("/:id/courier/track", protect, orderController.trackCourier);
 
 module.exports = router;

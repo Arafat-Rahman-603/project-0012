@@ -97,6 +97,26 @@ const siteSettingsSchema = new mongoose.Schema(
       type: String,
       default: "#FFFFFF",
     },
+    courierSettings: {
+      steadfast: {
+        apiKey: { type: String, default: "" },
+        secretKey: { type: String, default: "" },
+        isActive: { type: Boolean, default: false },
+      },
+      pathao: {
+        clientId: { type: String, default: "" },
+        clientSecret: { type: String, default: "" },
+        username: { type: String, default: "" },
+        password: { type: String, default: "" },
+        storeId: { type: String, default: "" },
+        isActive: { type: Boolean, default: false },
+      },
+      defaultProvider: {
+        type: String,
+        enum: ["steadfast", "pathao", "none"],
+        default: "steadfast",
+      },
+    },
   },
   { timestamps: true }
 );

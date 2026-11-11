@@ -176,6 +176,8 @@ export const ordersApi = {
   stats: () => api.get("/orders/admin/stats"),
   updateStatus: (id: string, status: string) =>
     api.put(`/orders/${id}/status`, { status }),
+  trackPublic: (orderNumber: string, phone: string) =>
+    api.post("/orders/track/lookup", { orderNumber, phone }),
 };
 
 // Users

@@ -2,16 +2,82 @@ const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const User = require("../models/User");
+const SiteSettings = require("../models/SiteSettings");
 const { sendOrderConfirmationEmail } = require("../utils/email");
 const { paginatedResponse } = require("../utils/response");
+const {
+  dispatchToSteadfast,
+  trackSteadfast,
+  dispatchToPathao,
+} = require("../utils/courier");
 
 // @desc    Create order from cart
 // @route   POST /api/orders
 exports.createOrder = async (req, res, next) => {
+  const stockUpdates = [];
   try {
-    const { shippingAddress, paymentMethod = "cod", notes } = req.body;
+    const { paymentMethod = "cod", notes } = req.body;
 
-    if (!shippingAddress) {
+    // Parse shipping address (support JSON object, JSON string, or multipart bracket notation)
+    let shippingAddress = req.body.shippingAddress;
+    if (typeof shippingAddress === "string") {
+      try {
+        shippingAddress = JSON.parse(shippingAddress);
+      } catch (_) {
+        shippingAddress = null;
+      }
+    }
+
+    if (!shippingAddress || typeof shippingAddress !== "object") {
+      shippingAddress = {
+        fullName:
+          req.body["shippingAddress[fullName]"] ||
+          req.body["shippingAddress.fullName"] ||
+          req.body.fullName ||
+          "",
+        phone:
+          req.body["shippingAddress[phone]"] ||
+          req.body["shippingAddress.phone"] ||
+          req.body.phone ||
+          "",
+        addressLine1:
+          req.body["shippingAddress[addressLine1]"] ||
+          req.body["shippingAddress.addressLine1"] ||
+          req.body.addressLine1 ||
+          "",
+        addressLine2:
+          req.body["shippingAddress[addressLine2]"] ||
+          req.body["shippingAddress.addressLine2"] ||
+          req.body.addressLine2 ||
+          "",
+        city:
+          req.body["shippingAddress[city]"] ||
+          req.body["shippingAddress.city"] ||
+          req.body.city ||
+          "",
+        state:
+          req.body["shippingAddress[state]"] ||
+          req.body["shippingAddress.state"] ||
+          req.body.state ||
+          "",
+        postalCode:
+          req.body["shippingAddress[postalCode]"] ||
+          req.body["shippingAddress.postalCode"] ||
+          req.body.postalCode ||
+          "",
+        country:
+          req.body["shippingAddress[country]"] ||
+          req.body["shippingAddress.country"] ||
+          req.body.country ||
+          "BD",
+      };
+    }
+
+    if (
+      !shippingAddress.fullName ||
+      !shippingAddress.phone ||
+      !shippingAddress.addressLine1
+    ) {
       return res.status(400).json({ success: false, message: "Shipping address is required." });
     }
 
@@ -55,7 +121,6 @@ exports.createOrder = async (req, res, next) => {
     const totalPrice = itemsPrice + shippingPrice + taxPrice;
 
     // Deduct stock atomically before creating order (prevents overselling)
-    const stockUpdates = [];
     for (const item of cart.items) {
       const updated = await Product.findOneAndUpdate(
         {
@@ -107,6 +172,14 @@ exports.createOrder = async (req, res, next) => {
 
     res.status(201).json({ success: true, message: "Order placed successfully.", order });
   } catch (error) {
+    // Rollback any stock deducted if order creation failed
+    for (const prev of stockUpdates) {
+      try {
+        await Product.findByIdAndUpdate(prev.productId, {
+          $inc: { stock: prev.quantity, soldCount: -prev.quantity },
+        });
+      } catch (_) {}
+    }
     next(error);
   }
 };
@@ -313,6 +386,175 @@ exports.getDashboardStats = async (req, res, next) => {
         cancelledOrders,
       },
       recentOrders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Dispatch order to Steadfast or Pathao Courier (admin)
+// @route   POST /api/orders/:id/courier/dispatch
+exports.dispatchOrderToCourier = async (req, res, next) => {
+  try {
+    const { provider = "steadfast" } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    if (order.orderStatus === "cancelled" || order.orderStatus === "delivered") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot dispatch order with status "${order.orderStatus}".`,
+      });
+    }
+
+    // Retrieve settings for credentials
+    const settings = await SiteSettings.findOne({ singletonKey: "site" });
+    const courierSettings = settings?.courierSettings;
+
+    let result;
+    if (provider === "steadfast") {
+      result = await dispatchToSteadfast(order, courierSettings?.steadfast);
+    } else if (provider === "pathao") {
+      result = await dispatchToPathao(order, courierSettings?.pathao);
+    } else {
+      return res.status(400).json({ success: false, message: "Unsupported courier provider." });
+    }
+
+    order.courier = {
+      provider: result.provider,
+      consignmentId: result.consignmentId,
+      trackingCode: result.trackingCode,
+      status: result.status,
+      dispatchedAt: new Date(),
+      lastTrackedAt: new Date(),
+    };
+
+    order.trackingNumber = result.trackingCode || result.consignmentId;
+    if (order.orderStatus === "pending" || order.orderStatus === "confirmed" || order.orderStatus === "processing") {
+      order.orderStatus = "shipped";
+    }
+
+    await order.save();
+    await order.populate("user", "name email");
+
+    res.json({
+      success: true,
+      message: `Order dispatched via ${provider.toUpperCase()} successfully.`,
+      order,
+      courier: order.courier,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Track courier delivery status
+// @route   GET /api/orders/:id/courier/track
+exports.trackCourier = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    if (!order.courier?.provider || order.courier.provider === "none") {
+      return res.status(400).json({
+        success: false,
+        message: "This order has not been dispatched to a courier yet.",
+      });
+    }
+
+    const settings = await SiteSettings.findOne({ singletonKey: "site" });
+    const courierSettings = settings?.courierSettings;
+
+    let trackingData;
+    if (order.courier.provider === "steadfast") {
+      const identifier = order.courier.consignmentId || order.orderNumber;
+      trackingData = await trackSteadfast(identifier, courierSettings?.steadfast);
+      order.courier.status = trackingData.deliveryStatus;
+      order.courier.lastTrackedAt = new Date();
+
+      if (trackingData.deliveryStatus === "delivered") {
+        order.orderStatus = "delivered";
+        order.deliveredAt = order.deliveredAt || new Date();
+        order.isPaid = true;
+      }
+      await order.save();
+    }
+
+    res.json({
+      success: true,
+      courier: order.courier,
+      trackingData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Public Order Tracking lookup (no login required)
+// @route   GET /api/orders/track/lookup
+exports.trackPublicOrder = async (req, res, next) => {
+  try {
+    const { orderNumber, phone } = req.query;
+
+    if (!orderNumber || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Order number and phone number are required.",
+      });
+    }
+
+    const cleanOrderNumber = String(orderNumber).trim();
+    const cleanPhone = String(phone).trim().replace(/[^0-9]/g, "");
+
+    const order = await Order.findOne({
+      orderNumber: new RegExp(`^${cleanOrderNumber}$`, "i"),
+    })
+      .populate("items.product", "name slug images price")
+      .select("-__v");
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "No order found matching the provided order number.",
+      });
+    }
+
+    // Verify phone matches
+    const orderPhone = (order.shippingAddress?.phone || "").replace(/[^0-9]/g, "");
+    if (!orderPhone.endsWith(cleanPhone.slice(-10))) {
+      return res.status(401).json({
+        success: false,
+        message: "The phone number does not match this order.",
+      });
+    }
+
+    res.json({
+      success: true,
+      order: {
+        _id: order._id,
+        orderNumber: order.orderNumber,
+        orderStatus: order.orderStatus,
+        createdAt: order.createdAt,
+        totalPrice: order.totalPrice,
+        itemsPrice: order.itemsPrice,
+        shippingPrice: order.shippingPrice,
+        paymentMethod: order.paymentMethod,
+        isPaid: order.isPaid,
+        shippingAddress: {
+          fullName: order.shippingAddress?.fullName,
+          city: order.shippingAddress?.city,
+          state: order.shippingAddress?.state,
+        },
+        items: order.items,
+        trackingNumber: order.trackingNumber,
+        courier: order.courier,
+        deliveredAt: order.deliveredAt,
+      },
     });
   } catch (error) {
     next(error);

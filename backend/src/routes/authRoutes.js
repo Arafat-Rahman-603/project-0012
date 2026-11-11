@@ -56,26 +56,28 @@ router.put("/change-password", protect, authController.changePassword);
 router.get("/me", protect, authController.getMe);
 
 // Google OAuth
-router.get(
-  "/google",
+router.get("/google", (req, res, next) => {
+  const { mobile_redirect } = req.query;
+  const state = mobile_redirect ? JSON.stringify({ mobile_redirect }) : undefined;
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
-  }),
-);
+    state,
+  })(req, res, next);
+});
 
-router.get(
-  "/callback/google",
-  (req, res, next) => {
-    const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000")
-      .split(",")[0]
-      .trim();
-    passport.authenticate("google", {
-      failureRedirect: `${clientUrl}/login?error=google_failed`,
-      session: false,
-    })(req, res, next);
-  },
-  authController.googleCallback,
-);
+const handleGoogleCallback = (req, res, next) => {
+  const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000")
+    .split(",")[0]
+    .trim();
+  passport.authenticate("google", {
+    failureRedirect: `${clientUrl}/login?error=google_failed`,
+    session: false,
+  })(req, res, next);
+};
+
+// Support both callback URL structures
+router.get("/google/callback", handleGoogleCallback, authController.googleCallback);
+router.get("/callback/google", handleGoogleCallback, authController.googleCallback);
 
 module.exports = router;

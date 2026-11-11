@@ -12,15 +12,15 @@ export interface User {
 }
 
 export interface Address {
-  _id: string;
+  _id?: string;
   fullName: string;
   phone: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
-  state: string;
-  postalCode: string;
-  country: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
   isDefault?: boolean;
 }
 
@@ -79,6 +79,7 @@ export interface Cart {
 
 export interface Order {
   _id: string;
+  orderNumber?: string;
   user: string;
   items: {
     product: Product | string;
@@ -90,9 +91,20 @@ export interface Order {
   shippingAddress: Address;
   paymentMethod: string;
   totalPrice: number;
+  itemsPrice?: number;
+  shippingPrice?: number;
   /** API field name from MongoDB */
   orderStatus?: string;
   status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+  trackingNumber?: string;
+  courier?: {
+    provider?: "steadfast" | "pathao" | "manual" | "none";
+    consignmentId?: string;
+    trackingCode?: string;
+    status?: string;
+    dispatchedAt?: string;
+    lastTrackedAt?: string;
+  };
   notes?: string;
   createdAt: string;
 }
@@ -152,4 +164,20 @@ export interface SiteSettings {
   showAnnouncement?: boolean;
   announcementBg?: string;
   announcementColor?: string;
+  courierSettings?: {
+    steadfast?: {
+      apiKey?: string;
+      secretKey?: string;
+      isActive?: boolean;
+    };
+    pathao?: {
+      clientId?: string;
+      clientSecret?: string;
+      username?: string;
+      password?: string;
+      storeId?: string;
+      isActive?: boolean;
+    };
+    defaultProvider?: "steadfast" | "pathao" | "none";
+  };
 }

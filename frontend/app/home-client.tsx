@@ -11,8 +11,9 @@ import { extractList } from "@/lib/listResponse";
 import { defaultSiteSettings, useSiteSettings } from "@/hooks/useSiteSettings";
 
 const fallbackBannerImages = [
-  "https://static.vecteezy.com/system/resources/thumbnails/004/299/835/small/online-shopping-on-phone-buy-sell-business-digital-web-banner-application-money-advertising-payment-ecommerce-illustration-search-free-vector.jpg",
-  "https://cdn.vectorstock.com/i/500p/09/80/online-shopping-laptop-banner-vector-17230980.jpg"
+  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=85",
+  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1800&q=85",
+  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1800&q=85",
 ];
 
 export default function HomeClient() {
@@ -146,7 +147,7 @@ export default function HomeClient() {
                     style={{ borderColor: `${activeTextColor}80`, color: activeTextColor }}
                     className="inline-flex items-center gap-2 px-8 py-3.5 border-2 text-sm font-semibold rounded-sm hover:bg-cream/10 transition-all"
                   >
-                    Explore Featured Sarees
+                    Explore Featured Products
                   </Link>
                 </div>
               </motion.div>
@@ -179,9 +180,9 @@ export default function HomeClient() {
         >
           <div className="flex gap-8 md:gap-16">
             {[
-              { value: "500+", label: "Sarees" },
-              { value: "98%", label: "Happy Clients" },
-              { value: "25+", label: "Collections" },
+              { value: "10k+", label: "Products" },
+              { value: "99%", label: "Satisfaction" },
+              { value: "64", label: "Districts" },
             ].map((stat) => (
               <div key={stat.label}>
                 <p
@@ -288,7 +289,7 @@ export default function HomeClient() {
                 className="text-3xl md:text-4xl font-bold"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Featured Sarees
+                Featured Products
               </h2>
             </div>
             <Link
@@ -317,7 +318,7 @@ export default function HomeClient() {
             </div>
           ) : (
             <div className="text-center py-20 text-ink/40">
-              <p className="text-lg">No featured sarees yet</p>
+              <p className="text-lg">No featured products yet</p>
               <Link
                 href="/products"
                 className="text-sm text-amber-500 hover:text-amber-600 mt-2 inline-block"
@@ -352,7 +353,7 @@ export default function HomeClient() {
               {
                 icon: Sparkles,
                 title: "Premium Quality",
-                desc: "Curated and quality checked sarees",
+                desc: "100% authentic curated lifestyle goods",
               },
             ].map((item, i) => (
               <motion.div
@@ -400,7 +401,7 @@ export default function HomeClient() {
             Join Next Shop
           </h2>
           <p className="text-cream/60 mb-8 max-w-md mx-auto">
-            Get early access to new saree drops, festive collections, and exclusive offers.
+            Get early access to new product drops, festive collections, and exclusive member offers.
           </p>
           <Link
             href="/register"

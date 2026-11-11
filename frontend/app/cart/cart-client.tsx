@@ -38,14 +38,24 @@ export default function CartClient() {
     setPlacing(true);
     try {
       const fd = new FormData();
-      fd.append("shippingAddress[fullName]", address.fullName);
-      fd.append("shippingAddress[phone]", address.phone);
-      fd.append("shippingAddress[addressLine1]", address.addressLine1);
-      if (address.addressLine2) fd.append("shippingAddress[addressLine2]", address.addressLine2);
-      fd.append("shippingAddress[city]", address.city);
-      fd.append("shippingAddress[state]", address.state);
-      fd.append("shippingAddress[postalCode]", address.postalCode);
-      fd.append("shippingAddress[country]", address.country);
+      const shippingData = {
+        fullName: address.fullName,
+        phone: address.phone,
+        addressLine1: address.addressLine1,
+        addressLine2: address.addressLine2 || "",
+        city: address.city,
+        state: address.state || address.city,
+        country: "BD",
+      };
+
+      fd.append("shippingAddress", JSON.stringify(shippingData));
+      fd.append("shippingAddress[fullName]", shippingData.fullName);
+      fd.append("shippingAddress[phone]", shippingData.phone);
+      fd.append("shippingAddress[addressLine1]", shippingData.addressLine1);
+      if (shippingData.addressLine2) fd.append("shippingAddress[addressLine2]", shippingData.addressLine2);
+      fd.append("shippingAddress[city]", shippingData.city);
+      fd.append("shippingAddress[state]", shippingData.state);
+      fd.append("shippingAddress[country]", "BD");
       fd.append("paymentMethod", paymentMethod);
       if (note.trim()) fd.append("notes", note.trim());
       if (noteImage) fd.append("noteImage", noteImage);
@@ -165,7 +175,7 @@ export default function CartClient() {
                               alt={item.product.name}
                               width={80}
                               height={80}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform"
+                              className="w-full h-full object-contain p-1 bg-[#FAF8F5] hover:scale-105 transition-transform"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
@@ -245,20 +255,18 @@ export default function CartClient() {
                     className="grid grid-cols-2 gap-4"
                   >
                     {[
-                      { name: "fullName" as const, label: "Full Name", placeholder: "John Doe", col: 2 },
-                      { name: "phone" as const, label: "Phone", placeholder: "01XXXXXXXXX", col: 1 },
-                      { name: "addressLine1" as const, label: "Address", placeholder: "123 Main St", col: 2 },
-                      { name: "city" as const, label: "City", placeholder: "Dhaka", col: 1 },
-                      { name: "state" as const, label: "State/Division", placeholder: "Dhaka", col: 1 },
-                      { name: "postalCode" as const, label: "Postal Code", placeholder: "1200", col: 1 },
-                      { name: "country" as const, label: "Country", placeholder: "BD", col: 1 },
+                      { name: "fullName" as const, label: "Full Name", placeholder: "e.g. Rahim Khan", col: 2, required: true },
+                      { name: "phone" as const, label: "Phone Number (for delivery)", placeholder: "01XXXXXXXXX", col: 2, required: true },
+                      { name: "addressLine1" as const, label: "Delivery Address (Area, Road, House)", placeholder: "House 12, Road 4, Dhanmondi", col: 2, required: true },
+                      { name: "city" as const, label: "City / District", placeholder: "Dhaka", col: 1, required: true },
+                      { name: "state" as const, label: "Zone / Division (Optional)", placeholder: "e.g. Dhaka", col: 1, required: false },
                     ].map((field) => (
                       <div key={field.name} className={field.col === 2 ? "col-span-2" : ""}>
                         <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/60">
                           {field.label}
                         </label>
                         <input
-                          {...register(field.name, { required: `${field.label} is required` })}
+                          {...register(field.name, { required: field.required ? `${field.label} is required` : false })}
                           placeholder={field.placeholder}
                           className="w-full bg-parchment border border-ink/10 rounded-sm px-3 py-2.5 text-sm focus:outline-none focus:border-amber transition-colors"
                         />

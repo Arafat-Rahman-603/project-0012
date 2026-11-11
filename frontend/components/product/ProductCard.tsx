@@ -81,7 +81,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="relative overflow-hidden bg-parchment rounded-sm aspect-[4/5]"
+          className="relative overflow-hidden bg-[#FAF8F5] border border-ink/5 rounded-sm aspect-[4/5] flex items-center justify-center p-2.5"
         >
           {isHovered && product.images && product.images.length > 1 ? (
             <ProductCardImageSwiper images={product.images} alt={product.name} />
@@ -93,7 +93,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
               sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={index < 4}
               fetchPriority={index < 4 ? "high" : "low"}
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-parchment">

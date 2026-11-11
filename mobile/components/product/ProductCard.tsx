@@ -68,7 +68,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Image
             source={{ uri: imageUrl }}
             style={styles.image}
-            contentFit="cover"
+            contentFit="contain"
             transition={300}
           />
         ) : (
@@ -160,7 +160,10 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     aspectRatio: 4 / 5,
-    backgroundColor: Colors.parchment,
+    backgroundColor: "#FAF8F5",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 6,
   },
   image: { width: "100%", height: "100%" },
   imagePlaceholder: {

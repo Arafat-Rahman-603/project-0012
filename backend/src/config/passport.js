@@ -2,52 +2,57 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/User");
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Check if user already exists with this Google ID
-        let user = await User.findOne({ googleId: profile.id });
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback",
+        passReqToCallback: true,
+      },
+      async (req, accessToken, refreshToken, profile, done) => {
+        try {
+          // Check if user already exists with this Google ID
+          let user = await User.findOne({ googleId: profile.id });
 
-        if (user) {
-          return done(null, user);
-        }
-
-        // Check if user exists with same email
-        user = await User.findOne({ email: profile.emails[0].value });
-
-        if (user) {
-          // Link Google account to existing user
-          user.googleId = profile.id;
-          if (!user.avatar && profile.photos[0]) {
-            user.avatar = profile.photos[0].value;
+          if (user) {
+            return done(null, user);
           }
-          await user.save();
+
+          // Check if user exists with same email
+          user = await User.findOne({ email: profile.emails?.[0]?.value });
+
+          if (user) {
+            // Link Google account to existing user
+            user.googleId = profile.id;
+            if (!user.avatar && profile.photos?.[0]?.value) {
+              user.avatar = profile.photos[0].value;
+            }
+            await user.save();
+            return done(null, user);
+          }
+
+          // Create new user
+          user = await User.create({
+            name: profile.displayName || "Google User",
+            email: profile.emails?.[0]?.value,
+            avatar: profile.photos?.[0]?.value || "",
+            googleId: profile.id,
+            isEmailVerified: true, // Google emails are verified
+            authProvider: "google",
+          });
+
           return done(null, user);
+        } catch (error) {
+          return done(error, null);
         }
-
-        // Create new user
-        user = await User.create({
-          googleId: profile.id,
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          avatar: profile.photos[0]?.value || "",
-          isEmailVerified: true, // Google emails are verified
-          authProvider: "google",
-        });
-
-        return done(null, user);
-      } catch (error) {
-        return done(error, null);
       }
-    }
-  )
-);
+    )
+  );
+} else {
+  console.warn("⚠️  Google OAuth credentials not configured. Google sign-in is disabled.");
+}
 
 passport.serializeUser((user, done) => {
   done(null, user.id);

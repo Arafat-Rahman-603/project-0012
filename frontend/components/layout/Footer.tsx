@@ -66,7 +66,7 @@ export default function Footer() {
               )}
             </Link>
             <p className="text-sm text-cream/50 leading-relaxed max-w-[200px]">
-              Premium sarees curated for festive elegance, daily grace, and timeless style.
+              Premium lifestyle and fashion curated for elegance, daily grace, and timeless quality.
             </p>
             <div className="flex gap-3 mt-5">
               {settings.facebookUrl && (

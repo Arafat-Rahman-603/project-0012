@@ -219,7 +219,8 @@ const sendVerificationCodeEmail = async (user, code) => {
 };
 
 const sendPasswordResetEmail = async (user, token) => {
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
+  const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").split(",")[0].trim();
+  const resetUrl = `${clientUrl}/reset-password/${token}`;
   const template = emailTemplates.forgotPassword(user.name, resetUrl);
   await sendEmail({ to: user.email, ...template });
 };

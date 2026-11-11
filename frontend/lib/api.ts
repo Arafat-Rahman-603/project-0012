@@ -134,6 +134,11 @@ export const ordersApi = {
   stats: () => api.get("/orders/admin/stats"),
   updateStatus: (id: string, status: string) =>
     api.put(`/orders/${id}/status`, { status }),
+  dispatchCourier: (id: string, provider: "steadfast" | "pathao") =>
+    api.post(`/orders/${id}/courier/dispatch`, { provider }),
+  trackCourier: (id: string) => api.get(`/orders/${id}/courier/track`),
+  trackPublic: (orderNumber: string, phone: string) =>
+    api.get("/orders/track/lookup", { params: { orderNumber, phone } }),
 };
 
 // Users

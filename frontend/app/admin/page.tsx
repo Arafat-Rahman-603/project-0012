@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Package, ShoppingBag, Users, TrendingUp,
   Plus, Pencil, Trash2, Check, X, Search, ChevronDown,
   DollarSign, BarChart3, AlertCircle, Images, Save, Upload,
-  Globe, Mail
+  Globe, Mail, Printer, Truck, Copy, ExternalLink, FileText, RefreshCw, Eye
 } from "lucide-react";
 
 const Facebook = (props: any) => (
@@ -281,7 +281,7 @@ function ProductsTab() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-parchment rounded-sm overflow-hidden shrink-0">
-                         {product.images?.[0] && <Image src={product.images[0].url} alt="" width={40} height={40} className="w-full h-full object-cover" />}
+                         {product.images?.[0] && <Image src={product.images[0].url} alt="" width={40} height={40} className="w-full h-full object-contain p-0.5 bg-[#FAF8F5]" />}
                       </div>
                       <div>
                         <p className="font-medium line-clamp-1 max-w-[200px]">{product.name}</p>
@@ -482,62 +482,366 @@ function ProductForm({ product, onClose, onSaved }: { product: Product | null; o
 function OrdersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [courierFilter, setCourierFilter] = useState("all");
+  const [dispatchingId, setDispatchingId] = useState<string | null>(null);
+  const [trackingId, setTrackingId] = useState<string | null>(null);
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<Order | null>(null);
 
-  useEffect(() => {
+  const fetchOrders = () => {
+    setLoading(true);
     ordersApi.all()
       .then(({ data }) => setOrders(extractList<Order>(data, "orders").map(normalizeOrder)))
-      .catch(() => {})
+      .catch(() => toast.error("Failed to load orders"))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, []);
 
   const updateStatus = async (id: string, status: string) => {
     try {
       await ordersApi.updateStatus(id, status);
       setOrders(prev => prev.map(o => o._id === id ? { ...o, status: status as Order["status"], orderStatus: status } : o));
-      toast.success("Status updated");
-    } catch { toast.error("Failed to update"); }
+      toast.success(`Status updated to ${status}`);
+    } catch {
+      toast.error("Failed to update status");
+    }
   };
 
+  const handleDispatchCourier = async (orderId: string, provider: "steadfast" | "pathao") => {
+    setDispatchingId(orderId);
+    try {
+      const { data } = await ordersApi.dispatchCourier(orderId, provider);
+      toast.success(data.message || `Dispatched via ${provider.toUpperCase()}`);
+      if (data.order) {
+        setOrders(prev => prev.map(o => o._id === orderId ? normalizeOrder(data.order) : o));
+      } else {
+        fetchOrders();
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || `Failed to dispatch to ${provider}`);
+    } finally {
+      setDispatchingId(null);
+    }
+  };
+
+  const handleTrackCourier = async (orderId: string) => {
+    setTrackingId(orderId);
+    try {
+      const { data } = await ordersApi.trackCourier(orderId);
+      const status = data?.courier?.status || data?.trackingData?.deliveryStatus || "Status retrieved";
+      toast.info(`Courier Status: ${status}`);
+      fetchOrders();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to retrieve courier status");
+    } finally {
+      setTrackingId(null);
+    }
+  };
+
+  // Filter orders
+  const filteredOrders = orders.filter((order) => {
+    const q = search.toLowerCase().trim();
+    const orderNum = (order.orderNumber || order._id).toLowerCase();
+    const customerName = (order.shippingAddress?.fullName || "").toLowerCase();
+    const customerPhone = (order.shippingAddress?.phone || "").toLowerCase();
+    const matchesSearch = !q || orderNum.includes(q) || customerName.includes(q) || customerPhone.includes(q);
+
+    const matchesStatus = statusFilter === "all" || getOrderStatus(order) === statusFilter;
+    const isDispatched = order.courier?.provider && order.courier.provider !== "none";
+    const matchesCourier = courierFilter === "all" || (courierFilter === "dispatched" ? isDispatched : !isDispatched);
+
+    return matchesSearch && matchesStatus && matchesCourier;
+  });
+
   return (
-    <div className="border border-ink/10 rounded-sm overflow-hidden">
-      <table className="w-full text-sm">
-        <thead className="bg-parchment/50 border-b border-ink/10">
-          <tr>
-            {["Order ID", "Items", "Total", "Status", "Date", "Action"].map(h => (
-              <th key={h} className="text-left px-4 py-3 text-xs font-semibold tracking-wider uppercase text-ink/40">{h}</th>
+    <div className="space-y-4">
+      {/* Search & Filter Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-parchment/40 p-4 border border-ink/10 rounded-sm">
+        <div className="flex items-center gap-2 flex-1 min-w-[240px]">
+          <Search className="w-4 h-4 text-ink/40 shrink-0" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by Order #, Customer, Phone…"
+            className="w-full bg-cream border border-ink/10 rounded-sm px-3 py-1.5 text-xs focus:outline-none focus:border-amber"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="text-xs bg-cream border border-ink/10 rounded-sm px-2.5 py-1.5 focus:outline-none capitalize"
+          >
+            <option value="all">All Statuses</option>
+            {["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].map((s) => (
+              <option key={s} value={s}>{s}</option>
             ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-ink/10">
-          {loading
-            ? Array.from({ length: 8 }).map((_, i) => (
-              <tr key={i}><td colSpan={6} className="px-4 py-3"><div className="skeleton h-5 rounded" /></td></tr>
-            ))
-            : orders.map(order => {
+          </select>
+
+          <select
+            value={courierFilter}
+            onChange={(e) => setCourierFilter(e.target.value)}
+            className="text-xs bg-cream border border-ink/10 rounded-sm px-2.5 py-1.5 focus:outline-none"
+          >
+            <option value="all">All Deliveries</option>
+            <option value="dispatched">Dispatched to Courier</option>
+            <option value="undispatched">Not Dispatched</option>
+          </select>
+
+          <button
+            onClick={fetchOrders}
+            className="p-1.5 border border-ink/10 rounded hover:bg-cream transition-colors text-ink/70"
+            title="Refresh Orders"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Orders Table */}
+      <div className="border border-ink/10 rounded-sm overflow-x-auto bg-cream">
+        <table className="w-full text-sm">
+          <thead className="bg-parchment/60 border-b border-ink/10">
+            <tr>
+              {["Order", "Customer", "Items", "Total (COD)", "Status", "Delivery Partner", "Date", "Actions"].map((h) => (
+                <th key={h} className="text-left px-3.5 py-3 text-xs font-semibold tracking-wider uppercase text-ink/60 whitespace-nowrap">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-ink/10">
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <tr key={i}><td colSpan={8} className="px-4 py-3"><div className="skeleton h-5 rounded" /></td></tr>
+              ))
+            ) : filteredOrders.map((order) => {
               const status = getOrderStatus(order);
+              const hasCourier = order.courier?.provider && order.courier.provider !== "none";
+
               return (
-              <tr key={order._id} className="hover:bg-parchment/30 transition-colors">
-                <td className="px-4 py-3 font-mono text-xs">#{order._id.slice(-8).toUpperCase()}</td>
-                <td className="px-4 py-3 text-ink/60">{(order.items?.length ?? 0)} item{(order.items?.length ?? 0) !== 1 ? "s" : ""}</td>
-                <td className="px-4 py-3 font-semibold">{formatBdt(order.totalPrice)}</td>
-                <td className="px-4 py-3">
-                  <select value={status} onChange={e => updateStatus(order._id, e.target.value)}
-                    className="text-xs bg-parchment border border-ink/10 rounded-sm px-2 py-1 focus:outline-none focus:border-amber capitalize">
-                    {["pending","confirmed","processing","shipped","delivered","cancelled"].map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </td>
-                <td className="px-4 py-3 text-ink/50">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "—"}</td>
-                <td className="px-4 py-3">
-                  <Link href={`/orders/${order._id}`} className="text-xs text-amber-500 hover:text-amber-600 transition-colors">View</Link>
-                </td>
-              </tr>
+                <tr key={order._id} className="hover:bg-parchment/20 transition-colors">
+                  {/* Order Number */}
+                  <td className="px-3.5 py-3">
+                    <p className="font-mono text-xs font-bold text-ink">
+                      {order.orderNumber || `#${order._id.slice(-6).toUpperCase()}`}
+                    </p>
+                    <p className="text-[10px] text-ink/40 font-mono">ID: {order._id.slice(-6)}</p>
+                  </td>
+
+                  {/* Customer Info */}
+                  <td className="px-3.5 py-3 text-xs">
+                    <p className="font-semibold text-ink">{order.shippingAddress?.fullName || "Guest"}</p>
+                    <p className="text-ink/60 font-mono">{order.shippingAddress?.phone}</p>
+                    <p className="text-[10px] text-ink/40 truncate max-w-[140px]" title={order.shippingAddress?.addressLine1}>
+                      {order.shippingAddress?.city}
+                    </p>
+                  </td>
+
+                  {/* Items */}
+                  <td className="px-3.5 py-3 text-xs text-ink/70">
+                    <span className="font-medium">{order.items?.length ?? 0}</span> item{(order.items?.length ?? 0) !== 1 ? "s" : ""}
+                  </td>
+
+                  {/* Total COD */}
+                  <td className="px-3.5 py-3 font-semibold text-xs text-amber-700 whitespace-nowrap">
+                    {formatBdt(order.totalPrice)}
+                  </td>
+
+                  {/* Status Dropdown */}
+                  <td className="px-3.5 py-3">
+                    <select
+                      value={status}
+                      onChange={(e) => updateStatus(order._id, e.target.value)}
+                      className={`text-xs border rounded px-2 py-1 focus:outline-none capitalize font-medium ${
+                        status === "delivered"
+                          ? "bg-green-50 text-green-700 border-green-200"
+                          : status === "cancelled"
+                          ? "bg-red-50 text-red-600 border-red-200"
+                          : status === "shipped"
+                          ? "bg-purple-50 text-purple-700 border-purple-200"
+                          : "bg-parchment text-ink border-ink/15"
+                      }`}
+                    >
+                      {["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </td>
+
+                  {/* Courier Partner & Dispatch Button */}
+                  <td className="px-3.5 py-3 text-xs">
+                    {hasCourier ? (
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200">
+                            {order.courier?.provider}
+                          </span>
+                          {order.courier?.trackingCode && (
+                            <span className="font-mono text-[10px] text-ink/70 truncate max-w-[90px]" title={order.courier.trackingCode}>
+                              {order.courier.trackingCode}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleTrackCourier(order._id)}
+                          disabled={trackingId === order._id}
+                          className="text-[10px] text-amber-600 hover:underline flex items-center gap-1 font-medium disabled:opacity-50"
+                        >
+                          <RefreshCw className={`w-2.5 h-2.5 ${trackingId === order._id ? "animate-spin" : ""}`} />
+                          Live Status: {order.courier?.status || "Check"}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={() => handleDispatchCourier(order._id, "steadfast")}
+                          disabled={dispatchingId === order._id || status === "cancelled" || status === "delivered"}
+                          className="px-2 py-1 bg-amber text-ink text-[11px] font-semibold rounded hover:bg-amber-dark hover:text-white transition-all flex items-center justify-center gap-1 disabled:opacity-40"
+                        >
+                          <Truck className="w-3 h-3" />
+                          Send to Steadfast
+                        </button>
+                        <button
+                          onClick={() => handleDispatchCourier(order._id, "pathao")}
+                          disabled={dispatchingId === order._id || status === "cancelled" || status === "delivered"}
+                          className="px-2 py-0.5 bg-red-600 text-white text-[10px] font-medium rounded hover:bg-red-700 transition-all flex items-center justify-center gap-1 disabled:opacity-40"
+                        >
+                          Send to Pathao
+                        </button>
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Date */}
+                  <td className="px-3.5 py-3 text-xs text-ink/50 whitespace-nowrap">
+                    {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "—"}
+                  </td>
+
+                  {/* Actions: View + Invoice Print */}
+                  <td className="px-3.5 py-3 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setSelectedInvoiceOrder(order)}
+                        className="p-1 hover:bg-parchment rounded text-ink/70 hover:text-ink transition-colors"
+                        title="Print Order Invoice / Slip"
+                      >
+                        <Printer className="w-4 h-4" />
+                      </button>
+                      <Link
+                        href={`/orders/${order._id}`}
+                        className="p-1 hover:bg-parchment rounded text-amber-600 hover:text-amber-700 transition-colors"
+                        title="View Full Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
               );
             })}
-        </tbody>
-      </table>
-      {!loading && orders.length === 0 && <div className="text-center py-12 text-ink/40">No orders yet</div>}
+          </tbody>
+        </table>
+        {!loading && filteredOrders.length === 0 && (
+          <div className="text-center py-12 text-ink/40 text-sm">
+            {orders.length === 0 ? "No orders placed yet." : "No orders matching current filter."}
+          </div>
+        )}
+      </div>
+
+      {/* Printable Invoice Modal */}
+      {selectedInvoiceOrder && (
+        <div className="fixed inset-0 z-50 bg-ink/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white text-black w-full max-w-2xl rounded-sm shadow-2xl p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
+            <div className="flex justify-between items-start pb-4 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Next Shop</h2>
+                <p className="text-xs text-gray-500">Order Invoice & Packaging Slip</p>
+              </div>
+              <div className="text-right">
+                <p className="font-mono text-sm font-bold">{selectedInvoiceOrder.orderNumber || selectedInvoiceOrder._id}</p>
+                <p className="text-xs text-gray-500">
+                  {selectedInvoiceOrder.createdAt ? new Date(selectedInvoiceOrder.createdAt).toLocaleDateString() : ""}
+                </p>
+              </div>
+            </div>
+
+            {/* Customer & Shipping Details */}
+            <div className="grid grid-cols-2 gap-4 py-4 text-xs border-b border-gray-200">
+              <div>
+                <p className="font-semibold text-gray-600 uppercase tracking-wider mb-1">Deliver To:</p>
+                <p className="font-bold text-sm text-gray-900">{selectedInvoiceOrder.shippingAddress?.fullName}</p>
+                <p className="text-gray-700">{selectedInvoiceOrder.shippingAddress?.phone}</p>
+                <p className="text-gray-700">{selectedInvoiceOrder.shippingAddress?.addressLine1}</p>
+                <p className="text-gray-700">{selectedInvoiceOrder.shippingAddress?.city}, Bangladesh</p>
+              </div>
+              <div className="text-right">
+                <p className="font-semibold text-gray-600 uppercase tracking-wider mb-1">Payment & Courier:</p>
+                <p className="text-gray-800">Method: <strong>Cash on Delivery (COD)</strong></p>
+                <p className="text-gray-800">
+                  Delivery Partner: <strong>{selectedInvoiceOrder.courier?.provider || "Unassigned"}</strong>
+                </p>
+                {selectedInvoiceOrder.courier?.trackingCode && (
+                  <p className="text-gray-800 font-mono">
+                    Tracking: <strong>{selectedInvoiceOrder.courier.trackingCode}</strong>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Items Table */}
+            <table className="w-full text-xs my-4">
+              <thead>
+                <tr className="border-b border-gray-200 text-gray-600 font-semibold uppercase">
+                  <th className="text-left py-2">Item</th>
+                  <th className="text-center py-2">Qty</th>
+                  <th className="text-right py-2">Price</th>
+                  <th className="text-right py-2">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {selectedInvoiceOrder.items?.map((item: any, i: number) => (
+                  <tr key={i}>
+                    <td className="py-2.5 font-medium">{item.name}</td>
+                    <td className="py-2.5 text-center">{item.quantity}</td>
+                    <td className="py-2.5 text-right">{formatBdt(item.price)}</td>
+                    <td className="py-2.5 text-right font-semibold">{formatBdt(item.price * item.quantity)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Total */}
+            <div className="border-t border-gray-200 pt-3 flex justify-between items-center text-sm font-bold">
+              <span>Total Payable Amount:</span>
+              <span className="text-base text-gray-900">{formatBdt(selectedInvoiceOrder.totalPrice)}</span>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="mt-8 pt-4 border-t border-gray-200 flex justify-end gap-3 print:hidden">
+              <button
+                onClick={() => setSelectedInvoiceOrder(null)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 text-xs font-semibold rounded hover:bg-gray-50"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="px-5 py-2 bg-black text-white text-xs font-semibold rounded hover:bg-gray-800 flex items-center gap-1.5"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                Print Slip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -872,9 +1176,14 @@ function SettingsTab() {
     showAnnouncement: false,
     announcementBg: "#D97706",
     announcementColor: "#FFFFFF",
+    courierSettings: {
+      steadfast: { apiKey: "", secretKey: "", isActive: false },
+      pathao: { clientId: "", clientSecret: "", username: "", password: "", storeId: "", isActive: false },
+      defaultProvider: "steadfast",
+    },
   });
 
-  const [subTab, setSubTab] = useState<"general" | "contact" | "social" | "announcement" | "banners">("general");
+  const [subTab, setSubTab] = useState<"general" | "contact" | "social" | "announcement" | "banners" | "courier">("general");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string>("");
   const [removeLogo, setRemoveLogo] = useState(false);
@@ -908,6 +1217,11 @@ function SettingsTab() {
             showAnnouncement: next.showAnnouncement ?? false,
             announcementBg: next.announcementBg || "#D97706",
             announcementColor: next.announcementColor || "#FFFFFF",
+            courierSettings: next.courierSettings || {
+              steadfast: { apiKey: "", secretKey: "", isActive: false },
+              pathao: { clientId: "", clientSecret: "", username: "", password: "", storeId: "", isActive: false },
+              defaultProvider: "steadfast",
+            },
           });
         }
       })
@@ -996,6 +1310,7 @@ function SettingsTab() {
       fd.append("showAnnouncement", String(settings.showAnnouncement));
       fd.append("announcementBg", settings.announcementBg || "#D97706");
       fd.append("announcementColor", settings.announcementColor || "#FFFFFF");
+      fd.append("courierSettings", JSON.stringify(settings.courierSettings || {}));
 
       fd.append("existingBanners", JSON.stringify(settings.banners));
 
@@ -1034,6 +1349,7 @@ function SettingsTab() {
           showAnnouncement: saved.showAnnouncement ?? false,
           announcementBg: saved.announcementBg || "#D97706",
           announcementColor: saved.announcementColor || "#FFFFFF",
+          courierSettings: saved.courierSettings || settings.courierSettings,
         });
         setLogoFile(null);
         setLogoPreviewUrl("");
@@ -1099,7 +1415,8 @@ function SettingsTab() {
               { id: "contact", label: "Contact & Support" },
               { id: "social", label: "Social Networks" },
               { id: "announcement", label: "Announcement Bar" },
-              { id: "banners", label: "Dynamic Slideshow" }
+              { id: "banners", label: "Dynamic Slideshow" },
+              { id: "courier", label: "Courier Integration (Steadfast / Pathao)" }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1228,7 +1545,7 @@ function SettingsTab() {
                         type="email"
                         value={settings.contactEmail}
                         onChange={(e) => setSettings((prev) => ({ ...prev, contactEmail: e.target.value }))}
-                        placeholder="support@sareeshop.com"
+                        placeholder="support@nextshop.com.bd"
                         className="w-full bg-cream border border-ink/10 rounded-sm pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:border-amber transition-colors"
                       />
                     </div>
@@ -1254,7 +1571,7 @@ function SettingsTab() {
                       rows={3}
                       value={settings.contactAddress}
                       onChange={(e) => setSettings((prev) => ({ ...prev, contactAddress: e.target.value }))}
-                      placeholder="123 Saree Mansion, Banani, Dhaka, Bangladesh"
+                      placeholder="House 12, Road 5, Banani, Dhaka, Bangladesh"
                       className="w-full bg-cream border border-ink/10 rounded-sm px-3 py-2.5 text-sm focus:outline-none focus:border-amber transition-colors resize-none"
                     />
                   </div>
@@ -1346,7 +1663,7 @@ function SettingsTab() {
                         <input
                           value={settings.announcementText}
                           onChange={(e) => setSettings((prev) => ({ ...prev, announcementText: e.target.value }))}
-                          placeholder="e.g. Free delivery on orders over ৳2,000! Shop Saree Festives now."
+                          placeholder="e.g. Free delivery on orders over ৳2,000! Shop Next Shop Collections now."
                           className="w-full bg-cream border border-ink/10 rounded-sm px-3 py-2.5 text-sm focus:outline-none focus:border-amber transition-colors"
                           required
                         />
@@ -1440,7 +1757,7 @@ function SettingsTab() {
                               value={banner.title || ""}
                               onChange={(e) => updateExistingBannerField(index, "title", e.target.value)}
                               className="w-full bg-cream border border-ink/10 rounded-sm px-2 py-1.5 focus:outline-none focus:border-amber"
-                              placeholder="e.g. Luxurious silk sarees"
+                              placeholder="e.g. Handcrafted Luxury Goods"
                             />
                           </div>
                           <div className="col-span-2">
@@ -1646,6 +1963,307 @@ function SettingsTab() {
                       No banner image slides configured. Add image slides to customize store banners.
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* SUBTAB: COURIER INTEGRATION */}
+            {subTab === "courier" && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-bold text-base mb-1" style={{ fontFamily: "var(--font-display)" }}>
+                    Bangladesh Courier Integration (Steadfast & Pathao)
+                  </h3>
+                  <p className="text-xs text-ink/50">
+                    Connect your merchant API accounts to dispatch orders with 1-click and get automatic live consignment tracking.
+                  </p>
+                </div>
+
+                {/* Default Provider Selector */}
+                <div className="p-4 bg-parchment/60 border border-ink/10 rounded-sm">
+                  <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/60">
+                    Default Courier Partner
+                  </label>
+                  <select
+                    value={settings.courierSettings?.defaultProvider || "steadfast"}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        courierSettings: {
+                          ...(prev.courierSettings || {}),
+                          defaultProvider: e.target.value as "steadfast" | "pathao",
+                        },
+                      }))
+                    }
+                    className="w-full md:w-64 bg-cream border border-ink/10 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-amber font-medium"
+                  >
+                    <option value="steadfast">Steadfast Courier (Recommended)</option>
+                    <option value="pathao">Pathao Courier</option>
+                  </select>
+                  <p className="text-[11px] text-ink/40 mt-1.5">
+                    This courier will be pre-selected when dispatching orders from the Orders tab.
+                  </p>
+                </div>
+
+                {/* Steadfast Courier Settings */}
+                <div className="p-5 border border-ink/10 rounded-sm bg-cream space-y-4">
+                  <div className="flex items-center justify-between border-b border-ink/10 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-sm bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">
+                        SF
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-ink">Steadfast Courier</h4>
+                        <p className="text-[11px] text-ink/40">Fast nationwide Cash-on-Delivery across all 64 districts</p>
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold">
+                      <input
+                        type="checkbox"
+                        checked={settings.courierSettings?.steadfast?.isActive ?? false}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              steadfast: {
+                                ...(prev.courierSettings?.steadfast || {}),
+                                isActive: e.target.checked,
+                              },
+                            },
+                          }))
+                        }
+                        className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
+                      />
+                      <span>Active</span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/50">
+                        Steadfast API Key
+                      </label>
+                      <input
+                        type="password"
+                        value={settings.courierSettings?.steadfast?.apiKey || ""}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              steadfast: {
+                                ...(prev.courierSettings?.steadfast || {}),
+                                apiKey: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        placeholder="e.g. stdfast_api_key_xxxxxxxx"
+                        className="w-full bg-parchment/40 border border-ink/10 rounded-sm px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/50">
+                        Steadfast Secret Key
+                      </label>
+                      <input
+                        type="password"
+                        value={settings.courierSettings?.steadfast?.secretKey || ""}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              steadfast: {
+                                ...(prev.courierSettings?.steadfast || {}),
+                                secretKey: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        placeholder="e.g. stdfast_secret_xxxxxxxx"
+                        className="w-full bg-parchment/40 border border-ink/10 rounded-sm px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-ink/50 bg-emerald-50/60 border border-emerald-100 p-2.5 rounded-sm">
+                    💡 Get your credentials from{" "}
+                    <a
+                      href="https://portal.steadfast.com.bd"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-emerald-700 underline"
+                    >
+                      Steadfast Merchant Portal
+                    </a>{" "}
+                    → Settings → API Credentials.
+                  </div>
+                </div>
+
+                {/* Pathao Courier Settings */}
+                <div className="p-5 border border-ink/10 rounded-sm bg-cream space-y-4">
+                  <div className="flex items-center justify-between border-b border-ink/10 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-sm bg-red-600 text-white font-bold text-xs flex items-center justify-center">
+                        PT
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-ink">Pathao Courier</h4>
+                        <p className="text-[11px] text-ink/40">Same-day inside Dhaka & Express nationwide logistics</p>
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold">
+                      <input
+                        type="checkbox"
+                        checked={settings.courierSettings?.pathao?.isActive ?? false}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              pathao: {
+                                ...(prev.courierSettings?.pathao || {}),
+                                isActive: e.target.checked,
+                              },
+                            },
+                          }))
+                        }
+                        className="w-4 h-4 accent-red-600 rounded cursor-pointer"
+                      />
+                      <span>Active</span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/50">
+                        Pathao Client ID
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.courierSettings?.pathao?.clientId || ""}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              pathao: {
+                                ...(prev.courierSettings?.pathao || {}),
+                                clientId: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        placeholder="Pathao Client ID"
+                        className="w-full bg-parchment/40 border border-ink/10 rounded-sm px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/50">
+                        Pathao Client Secret
+                      </label>
+                      <input
+                        type="password"
+                        value={settings.courierSettings?.pathao?.clientSecret || ""}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              pathao: {
+                                ...(prev.courierSettings?.pathao || {}),
+                                clientSecret: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        placeholder="Pathao Client Secret"
+                        className="w-full bg-parchment/40 border border-ink/10 rounded-sm px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/50">
+                        Pathao Merchant Email / Username
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.courierSettings?.pathao?.username || ""}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              pathao: {
+                                ...(prev.courierSettings?.pathao || {}),
+                                username: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        placeholder="merchant@example.com"
+                        className="w-full bg-parchment/40 border border-ink/10 rounded-sm px-3 py-2 text-xs focus:outline-none focus:border-amber"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/50">
+                        Pathao Merchant Password
+                      </label>
+                      <input
+                        type="password"
+                        value={settings.courierSettings?.pathao?.password || ""}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              pathao: {
+                                ...(prev.courierSettings?.pathao || {}),
+                                password: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        placeholder="Pathao Account Password"
+                        className="w-full bg-parchment/40 border border-ink/10 rounded-sm px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold tracking-wider uppercase mb-1.5 text-ink/50">
+                        Pathao Store ID (Numeric)
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.courierSettings?.pathao?.storeId || ""}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            courierSettings: {
+                              ...(prev.courierSettings || {}),
+                              pathao: {
+                                ...(prev.courierSettings?.pathao || {}),
+                                storeId: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        placeholder="e.g. 12345"
+                        className="w-full md:w-64 bg-parchment/40 border border-ink/10 rounded-sm px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-ink/50 bg-red-50/60 border border-red-100 p-2.5 rounded-sm">
+                    💡 Register & request API access at{" "}
+                    <a
+                      href="https://merchant.pathao.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-red-700 underline"
+                    >
+                      Pathao Merchant Portal
+                    </a>{" "}
+                    → Developer API.
+                  </div>
                 </div>
               </div>
             )}

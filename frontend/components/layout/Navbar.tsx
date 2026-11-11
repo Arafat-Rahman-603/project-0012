@@ -112,8 +112,8 @@ export default function Navbar() {
             <nav className="hidden md:flex items-center gap-8">
               {[
                 { label: "Shop", href: "/products" },
+                { label: "Track Order", href: "/track" },
                 { label: "Orders", href: "/orders" },
-                { label: "About", href: "#" },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -265,6 +265,7 @@ export default function Navbar() {
               <nav className="px-4 py-4 flex flex-col gap-1">
                 {[
                   { label: "Shop", href: "/products" },
+                  { label: "Track Order", href: "/track" },
                   ...(isAuthenticated
                     ? user?.role === "admin"
                       ? [{ label: "Admin", href: "/admin" }]

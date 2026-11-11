@@ -48,6 +48,18 @@ const orderSchema = new mongoose.Schema(
     cancelledAt: Date,
     cancelReason: String,
     trackingNumber: String,
+    courier: {
+      provider: {
+        type: String,
+        enum: ["steadfast", "pathao", "manual", "none"],
+        default: "none",
+      },
+      consignmentId: { type: String, default: "" },
+      trackingCode: { type: String, default: "" },
+      status: { type: String, default: "" },
+      dispatchedAt: Date,
+      lastTrackedAt: Date,
+    },
     notes: String,
     noteImage: {
       url: String,

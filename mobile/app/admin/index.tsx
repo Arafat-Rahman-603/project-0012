@@ -25,7 +25,7 @@ export default function AdminDashboard() {
         const s = data.stats || data.data || data;
         setStats({
           totalOrders: s.totalOrders ?? 0,
-          totalRevenue: s.totalRevenue ?? 0,
+          totalRevenue: s.deliveredRevenue ?? s.totalRevenue ?? (s.deliveredRevenueAgg?.[0]?.total ?? 0),
           pendingOrders: s.pendingOrders ?? 0,
           deliveredOrders: s.deliveredOrders ?? 0,
         });

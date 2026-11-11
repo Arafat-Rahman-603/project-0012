@@ -4,7 +4,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose duplicate key
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
+    const field = err.keyValue ? Object.keys(err.keyValue)[0] : "Field";
     message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists.`;
     statusCode = 409;
   }

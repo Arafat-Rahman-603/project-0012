@@ -228,13 +228,13 @@ export default function AdminProductFormScreen() {
         {/* Input Form Fields */}
         <View style={styles.formSection}>
           {[
-            { label: "PRODUCT NAME", value: name, setter: setName, placeholder: "e.g. Premium Silk Saree" },
-            { label: "BRAND / WEAVER", value: brand, setter: setBrand, placeholder: "e.g. Banarasi Heritage" },
-            { label: "SKU CODE", value: sku, setter: setSku, placeholder: "e.g. SLK-BAN-01" },
+            { label: "PRODUCT NAME", value: name, setter: setName, placeholder: "e.g. Next Shop Premium Edition" },
+            { label: "BRAND / MANUFACTURER", value: brand, setter: setBrand, placeholder: "e.g. Next Shop Studio" },
+            { label: "SKU CODE", value: sku, setter: setSku, placeholder: "e.g. NXT-001" },
             { label: "PRICE (৳)", value: price, setter: setPrice, placeholder: "0", keyboardType: "numeric" as const },
             { label: "DISCOUNT PRICE (৳)", value: discountPrice, setter: setDiscountPrice, placeholder: "Optional", keyboardType: "numeric" as const },
             { label: "STOCK QUANTITY", value: stock, setter: setStock, placeholder: "0", keyboardType: "numeric" as const },
-            { label: "TAGS (comma-separated)", value: tags, setter: setTags, placeholder: "silk, wedding, red" },
+            { label: "TAGS (comma-separated)", value: tags, setter: setTags, placeholder: "lifestyle, fashion, premium" },
           ].map((field) => (
             <View key={field.label} style={styles.field}>
               <Text style={styles.fieldLabel}>{field.label}</Text>
@@ -256,7 +256,7 @@ export default function AdminProductFormScreen() {
               style={[styles.input, styles.textarea]}
               value={description}
               onChangeText={setDescription}
-              placeholder="Provide a detailed description of the saree weave, material, and design..."
+              placeholder="Provide a detailed description of the product, material, and design specifications..."
               placeholderTextColor={Colors.textLight}
               multiline
               numberOfLines={4}

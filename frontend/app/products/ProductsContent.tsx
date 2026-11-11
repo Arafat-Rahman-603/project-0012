@@ -12,8 +12,8 @@ const SORT_OPTIONS = [
   { label: "Newest", value: "-createdAt" },
   { label: "Price: Low to High", value: "price" },
   { label: "Price: High to Low", value: "-price" },
-  { label: "Most Popular", value: "-ratings.count" },
-  { label: "Top Rated", value: "-ratings.average" },
+  { label: "Most Popular", value: "-soldCount" },
+  { label: "Top Rated", value: "-rating" },
 ];
 
 const DEFAULT_FILTERS: ProductFilters = {
@@ -276,8 +276,8 @@ export default function ProductsContent() {
                 {filters.search
                   ? `"${filters.search}"`
                   : filters.featured
-                  ? "Featured Sarees"
-                  : "All Sarees"}
+                  ? "Featured Products"
+                  : "All Products"}
               </h1>
               {!isLoading && (
                 <p className="text-xs text-ink/40 mt-0.5">{total} items found</p>

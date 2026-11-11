@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import {
   Package, Clock, CheckCircle2, Truck, XCircle,
-  MapPin, CreditCard, ChevronLeft, ShoppingBag, X
+  MapPin, CreditCard, ChevronLeft, ShoppingBag, X, ExternalLink
 } from "lucide-react";
 import { ordersApi } from "@/lib/api";
 import { Order } from "@/types";
@@ -120,6 +120,44 @@ export default function OrderDetailPage() {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Courier Info Banner if assigned */}
+          {order.courier?.provider && order.courier.provider !== "none" && (
+            <div className="mb-6 p-4 bg-amber/10 border border-amber/30 rounded-sm flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-amber text-ink rounded-full flex items-center justify-center">
+                  <Truck className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-ink/60 font-semibold">
+                    Delivery Partner
+                  </p>
+                  <p className="text-sm font-bold text-ink capitalize">
+                    {order.courier.provider === "steadfast" ? "Steadfast Courier" : order.courier.provider === "pathao" ? "Pathao Courier" : order.courier.provider}
+                  </p>
+                </div>
+              </div>
+
+              {order.courier.trackingCode && (
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-ink/60">Tracking Code:</span>
+                  <span className="font-mono font-bold text-ink bg-cream px-2 py-1 rounded border border-ink/10">
+                    {order.courier.trackingCode}
+                  </span>
+                  {order.courier.provider === "steadfast" && (
+                    <a
+                      href={`https://steadfast.com.bd/t/${order.courier.trackingCode}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-600 hover:underline font-medium inline-flex items-center gap-1"
+                    >
+                      Track Portal <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

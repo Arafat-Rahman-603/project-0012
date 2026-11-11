@@ -4,22 +4,27 @@ const { deleteImage } = require("../config/cloudinary");
 const DEFAULT_SETTINGS = {
   singletonKey: "site",
   siteName: "Next Shop",
-  heroTitle: "",
-  heroSubtitle: "",
-  heroCtaText: "Shop Now",
+  heroTitle: "Curated Luxury & Modern Lifestyle",
+  heroSubtitle: "Discover handpicked premium apparel, accessories, and curated essentials for every occasion with fast nationwide delivery.",
+  heroCtaText: "Shop Collection",
   heroCtaHref: "/products",
   banners: [],
   logo: { url: "", publicId: "" },
-  contactPhone: "",
-  contactEmail: "",
-  contactAddress: "",
-  facebookUrl: "",
-  instagramUrl: "",
-  whatsappNumber: "",
-  announcementText: "",
-  showAnnouncement: false,
+  contactPhone: "+880 1700-000000",
+  contactEmail: "support@nextshop.com.bd",
+  contactAddress: "House 12, Road 5, Banani, Dhaka, Bangladesh",
+  facebookUrl: "https://facebook.com",
+  instagramUrl: "https://instagram.com",
+  whatsappNumber: "+8801700000000",
+  announcementText: "✨ Free Express Delivery on orders over ৳2,000 across all 64 districts!",
+  showAnnouncement: true,
   announcementBg: "#D97706",
   announcementColor: "#FFFFFF",
+  courierSettings: {
+    steadfast: { apiKey: "", secretKey: "", isActive: false },
+    pathao: { clientId: "", clientSecret: "", username: "", password: "", storeId: "", isActive: false },
+    defaultProvider: "steadfast",
+  },
 };
 
 const ensureSettings = async () =>
@@ -126,6 +131,19 @@ exports.updateSettings = async (req, res, next) => {
       await deleteImage(banner.publicId);
     }
 
+    let courierSettings = currentSettings.courierSettings;
+    if (req.body.courierSettings) {
+      try {
+        const parsed = typeof req.body.courierSettings === "string" ? JSON.parse(req.body.courierSettings) : req.body.courierSettings;
+        courierSettings = {
+          ...courierSettings,
+          ...parsed,
+          steadfast: { ...(courierSettings?.steadfast || {}), ...(parsed.steadfast || {}) },
+          pathao: { ...(courierSettings?.pathao || {}), ...(parsed.pathao || {}) },
+        };
+      } catch (_) {}
+    }
+
     const settings = await SiteSettings.findOneAndUpdate(
       { singletonKey: "site" },
       {
@@ -150,6 +168,7 @@ exports.updateSettings = async (req, res, next) => {
           showAnnouncement: req.body.showAnnouncement === "true",
           announcementBg: (req.body.announcementBg || "").trim() || DEFAULT_SETTINGS.announcementBg,
           announcementColor: (req.body.announcementColor || "").trim() || DEFAULT_SETTINGS.announcementColor,
+          courierSettings,
         },
       },
       { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }

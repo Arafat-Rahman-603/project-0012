@@ -99,22 +99,20 @@ export default function CheckoutScreen() {
     // Validate
     if (!form.fullName.trim()) return showError("Full Name is required");
     if (!form.phone.trim()) return showError("Phone number is required");
-    if (!form.addressLine1.trim()) return showError("Address is required");
-    if (!form.city.trim()) return showError("City is required");
-    if (!form.state.trim()) return showError("State/Division is required");
-    if (!form.postalCode.trim()) return showError("Postal Code is required");
+    if (!form.addressLine1.trim()) return showError("Delivery Address is required");
+    if (!form.city.trim()) return showError("City / District is required");
 
     setPlacing(true);
     try {
       await ordersApi.create({
         shippingAddress: {
-          fullName: form.fullName,
-          phone: form.phone,
-          addressLine1: form.addressLine1,
-          city: form.city,
-          state: form.state,
-          postalCode: form.postalCode,
-          country: form.country,
+          fullName: form.fullName.trim(),
+          phone: form.phone.trim(),
+          addressLine1: form.addressLine1.trim(),
+          city: form.city.trim(),
+          state: form.state.trim() || form.city.trim(),
+          postalCode: form.postalCode.trim() || "1000",
+          country: "BD",
         },
         paymentMethod: "cod",
       });
@@ -157,13 +155,11 @@ export default function CheckoutScreen() {
           <Text style={styles.sectionHeading}>Shipping Address</Text>
 
           {[
-            { label: "FULL NAME", key: "fullName", placeholder: "e.g. John Doe" },
-            { label: "PHONE NUMBER", key: "phone", placeholder: "e.g. 01XXXXXXXXX", keyboardType: "phone-pad" as const },
-            { label: "STREET ADDRESS", key: "addressLine1", placeholder: "House#, Road#, Area" },
-            { label: "CITY", key: "city", placeholder: "e.g. Dhaka" },
-            { label: "STATE / DIVISION", key: "state", placeholder: "e.g. Dhaka" },
-            { label: "POSTAL CODE", key: "postalCode", placeholder: "e.g. 1212", keyboardType: "numeric" as const },
-            { label: "COUNTRY", key: "country", placeholder: "BD" },
+            { label: "FULL NAME", key: "fullName", placeholder: "e.g. Rahim Ahmed" },
+            { label: "PHONE NUMBER", key: "phone", placeholder: "e.g. 017XXXXXXXX", keyboardType: "phone-pad" as const },
+            { label: "DELIVERY ADDRESS", key: "addressLine1", placeholder: "House#, Road#, Area / Village" },
+            { label: "DISTRICT / CITY", key: "city", placeholder: "e.g. Dhaka, Chittagong, Sylhet" },
+            { label: "AREA / THANA / ZONE (OPTIONAL)", key: "state", placeholder: "e.g. Mirpur, Gulshan, Dhanmondi" },
           ].map((field) => (
             <View key={field.key} style={styles.inputGroup}>
               <Text style={styles.inputLabel}>{field.label}</Text>
@@ -188,7 +184,7 @@ export default function CheckoutScreen() {
               <Text style={styles.codTitle}>Cash on Delivery (COD)</Text>
             </View>
             <Text style={styles.codDesc}>
-              Pay with cash when your saree is delivered to your doorstep.
+              Pay with cash when your package is delivered to your doorstep.
             </Text>
           </View>
         </View>

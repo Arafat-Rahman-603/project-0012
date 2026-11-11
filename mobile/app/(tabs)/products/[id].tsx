@@ -128,7 +128,9 @@ export default function ProductDetailScreen() {
               setActiveImage(idx);
             }}
             renderItem={({ item }: { item: { url: string } }) => (
-              <Image source={{ uri: item.url }} style={{ width, height: width * 1.1 }} contentFit="cover" />
+              <View style={{ width, height: width, backgroundColor: "#FAF8F5", alignItems: "center", justifyContent: "center", padding: 12 }}>
+                <Image source={{ uri: item.url }} style={{ width: "100%", height: "100%" }} contentFit="contain" />
+              </View>
             )}
           />
           {/* Dots */}

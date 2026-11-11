@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewImage, setReviewImage] = useState<File | null>(null);
@@ -49,10 +50,16 @@ export default function ProductDetailPage() {
   useEffect(() => {
     productsApi
       .get(id)
-      .then(({ data }) => setProduct(data?.product || data))
+      .then(({ data }) => {
+        const prod = data?.product || data;
+        setProduct(prod);
+        if (prod?.name) {
+          document.title = `${prod.name} | Next Shop`;
+        }
+      })
       .catch(() => router.push("/products"))
       .finally(() => setIsLoading(false));
-  }, [id]);
+  }, [id, router]);
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -71,6 +78,27 @@ export default function ProductDetailPage() {
       toast.error("Failed to add to cart");
     } finally {
       setAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to complete purchase");
+      router.push(`/login?redirect=/products/${product!._id}`);
+      return;
+    }
+    if (product?.sizes && product.sizes.length > 0 && !selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+    setBuyingNow(true);
+    try {
+      await addItem(product!._id, quantity);
+      router.push("/cart");
+    } catch {
+      toast.error("Failed to proceed to checkout");
+    } finally {
+      setBuyingNow(false);
     }
   };
 
@@ -184,7 +212,7 @@ export default function ProductDetailPage() {
               key={selectedImage}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="aspect-square bg-parchment rounded-sm overflow-hidden relative"
+              className="aspect-square bg-[#FAF8F5] border border-ink/5 rounded-sm overflow-hidden relative flex items-center justify-center p-4"
             >
               {product.images?.[selectedImage] ? (
                 <Image
@@ -194,7 +222,7 @@ export default function ProductDetailPage() {
                   priority
                   fetchPriority="high"
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover cursor-zoom-in hover:opacity-95 transition-opacity"
+                  className="object-contain p-2 cursor-zoom-in hover:scale-105 transition-transform duration-300"
                   onClick={() => setIsLightboxOpen(true)}
                 />
               ) : (
@@ -215,7 +243,7 @@ export default function ProductDetailPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-20 h-20 rounded-sm overflow-hidden shrink-0 border-2 transition-colors ${
+                    className={`w-20 h-20 rounded-sm overflow-hidden shrink-0 border-2 bg-[#FAF8F5] p-1 transition-colors ${
                       selectedImage === i ? "border-ink" : "border-transparent"
                     }`}
                   >
@@ -224,7 +252,7 @@ export default function ProductDetailPage() {
                       alt=""
                       width={80}
                       height={80}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   </button>
                 ))}
@@ -350,45 +378,57 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Qty + Add to Cart */}
-            <div className="flex gap-3">
-              <div className="flex items-center border border-ink/20 rounded-sm">
+            {/* Qty + Add to Cart + Buy Now */}
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <div className="flex items-center border border-ink/20 rounded-sm">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-3 py-3 hover:bg-parchment transition-colors"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="w-12 text-center text-sm font-medium">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                    disabled={quantity >= product.stock}
+                    className="px-3 py-3 hover:bg-parchment transition-colors disabled:opacity-40"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-3 hover:bg-parchment transition-colors"
+                  onClick={handleAddToCart}
+                  disabled={product.stock === 0 || addingToCart || buyingNow}
+                  className="flex-1 flex items-center justify-center gap-2 bg-ink text-cream py-3 rounded-sm font-medium hover:bg-ink/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <Minus className="w-4 h-4" />
+                  <ShoppingBag className="w-4 h-4" />
+                  {addingToCart ? "Adding…" : "Add to Cart"}
                 </button>
-                <span className="w-12 text-center text-sm font-medium">
-                  {quantity}
-                </span>
+
                 <button
-                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  disabled={quantity >= product.stock}
-                  className="px-3 py-3 hover:bg-parchment transition-colors disabled:opacity-40"
+                  onClick={handleWishlist}
+                  className="p-3 border border-ink/20 rounded-sm hover:bg-parchment transition-colors"
+                  title="Wishlist"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Heart
+                    className={`w-5 h-5 ${
+                      isInWishlist ? "fill-red-500 text-red-500" : ""
+                    }`}
+                  />
                 </button>
               </div>
 
               <button
-                onClick={handleAddToCart}
-                disabled={product.stock === 0 || addingToCart}
-                className="flex-1 flex items-center justify-center gap-2 bg-ink text-cream py-3 rounded-sm font-medium hover:bg-ink/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                onClick={handleBuyNow}
+                disabled={product.stock === 0 || addingToCart || buyingNow}
+                className="w-full flex items-center justify-center gap-2 bg-amber text-ink py-3.5 rounded-sm font-semibold hover:bg-amber/90 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <ShoppingBag className="w-4 h-4" />
-                {addingToCart ? "Adding…" : "Add to Cart"}
-              </button>
-
-              <button
-                onClick={handleWishlist}
-                className="p-3 border border-ink/20 rounded-sm hover:bg-parchment transition-colors"
-              >
-                <Heart
-                  className={`w-5 h-5 ${
-                    isInWishlist ? "fill-red-500 text-red-500" : ""
-                  }`}
-                />
+                <span>⚡</span>
+                {buyingNow ? "Proceeding to Checkout…" : "Buy Now (সরাসরি কিনুন)"}
               </button>
             </div>
 

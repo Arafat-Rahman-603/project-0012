@@ -50,7 +50,7 @@ export default function CartScreen() {
         <Toast {...toast} onHide={hide} />
         <Ionicons name="bag-outline" size={64} color={Colors.border} />
         <Text style={styles.emptyTitle}>Your cart is empty</Text>
-        <Text style={styles.emptySubtitle}>Explore our collection of sarees</Text>
+        <Text style={styles.emptySubtitle}>Explore our curated collection of premium products</Text>
         <TouchableOpacity onPress={() => router.push("/products")} style={styles.ctaBtn}>
           <Text style={styles.ctaBtnText}>Browse Products</Text>
         </TouchableOpacity>
@@ -93,7 +93,7 @@ export default function CartScreen() {
           return (
             <View key={item._id} style={styles.item}>
               <TouchableOpacity onPress={() => router.push(`/products/${item.product._id}`)}>
-                <Image source={{ uri: imgUrl }} style={styles.itemImage} resizeMode="cover" />
+                <Image source={{ uri: imgUrl }} style={styles.itemImage} resizeMode="contain" />
               </TouchableOpacity>
               <View style={styles.itemInfo}>
                 <TouchableOpacity onPress={() => router.push(`/products/${item.product._id}`)}>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     padding: Spacing.lg, borderBottomWidth: 1, borderBottomColor: Colors.border,
     backgroundColor: Colors.cream,
   },
-  itemImage: { width: 80, height: 96, borderRadius: BorderRadius.sm, backgroundColor: Colors.parchment },
+  itemImage: { width: 80, height: 80, borderRadius: BorderRadius.sm, backgroundColor: "#FAF8F5", padding: 4 },
   itemInfo: { flex: 1 },
   itemName: { fontSize: 13, fontFamily: Typography.bodyMedium, color: Colors.ink, lineHeight: 18, marginBottom: 4 },
   itemPrice: { fontSize: 16, fontFamily: Typography.bodySemibold, color: Colors.ink },
