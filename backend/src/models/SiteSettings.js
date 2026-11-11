@@ -117,6 +117,17 @@ const siteSettingsSchema = new mongoose.Schema(
         default: "steadfast",
       },
     },
+    shippingSettings: {
+      freeShippingThreshold: { type: Number, default: 2000 },
+      standardDeliveryFee: { type: Number, default: 80 },
+    },
+    bkashSettings: {
+      merchantNumber: { type: String, default: "01700000000" },
+      accountType: { type: String, default: "Merchant" },
+      advanceDiscountPercentage: { type: Number, default: 30 },
+      minAdvanceAmount: { type: Number, default: 100 },
+      isActive: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );

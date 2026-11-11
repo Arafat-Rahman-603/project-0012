@@ -21,6 +21,7 @@ router.get("/", protect, restrictTo("admin"), orderController.getAllOrders);
 router.get("/:id", protect, orderController.getOrder);
 router.put("/:id/cancel", protect, orderController.cancelOrder);
 router.put("/:id/status", protect, restrictTo("admin"), orderController.updateOrderStatus);
+router.put("/:id/payment-status", protect, restrictTo("admin"), orderController.updatePaymentStatus);
 router.post("/:id/courier/dispatch", protect, restrictTo("admin"), orderController.dispatchOrderToCourier);
 router.get("/:id/courier/track", protect, orderController.trackCourier);
 

@@ -186,9 +186,16 @@ export default function OrdersClient() {
                         </div>
                         <div>
                           <p className="text-xs text-ink/40">Total</p>
-                          <p className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)" }}>
-                            {formatBdt(order.totalPrice)}
-                          </p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)" }}>
+                              {formatBdt(order.totalPrice)}
+                            </p>
+                            {order.paymentMethod === "bkash" && (
+                              <span className="text-[10px] bg-amber/15 text-amber-800 font-bold px-1.5 py-0.5 rounded border border-amber/30">
+                                bKash (30% OFF)
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
 

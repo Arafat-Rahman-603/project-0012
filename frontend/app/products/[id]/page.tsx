@@ -17,6 +17,7 @@ import {
   Camera,
   Image as ImageIcon,
   X,
+  ArrowRight,
 } from "lucide-react";
 import { productsApi, usersApi } from "@/lib/api";
 import { Product } from "@/types";
@@ -25,12 +26,15 @@ import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import Link from "next/link";
 import { getProductRatings, getRatingDistribution } from "@/lib/productRatings";
+import ProductCard from "@/components/product/ProductCard";
+import { extractList } from "@/lib/listResponse";
 
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -55,6 +59,17 @@ export default function ProductDetailPage() {
         setProduct(prod);
         if (prod?.name) {
           document.title = `${prod.name} | Next Shop`;
+        }
+
+        // Fetch related products from same category
+        if (prod?.category) {
+          const catId = typeof prod.category === "object" ? prod.category._id : prod.category;
+          productsApi.list({ category: catId, limit: 6 })
+            .then((res) => {
+              const list = extractList<Product>(res.data, "products");
+              setRelatedProducts(list.filter((p) => p._id !== prod._id).slice(0, 4));
+            })
+            .catch(() => {});
         }
       })
       .catch(() => router.push("/products"))
@@ -679,6 +694,36 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-16 md:mt-24 pt-12 border-t border-ink/10">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <span className="text-xs font-semibold tracking-wider uppercase text-amber">
+                  Similar Styles
+                </span>
+                <h2
+                  className="text-2xl font-bold tracking-tight mt-1"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  Related Products
+                </h2>
+              </div>
+              <Link
+                href="/products"
+                className="text-xs font-semibold uppercase tracking-wider text-ink/60 hover:text-ink transition-colors flex items-center gap-1"
+              >
+                View All <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {relatedProducts.map((p) => (
+                <ProductCard key={p._id} product={p} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Fullscreen Lightbox */}

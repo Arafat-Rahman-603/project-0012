@@ -16,8 +16,6 @@ const {
 exports.createOrder = async (req, res, next) => {
   const stockUpdates = [];
   try {
-    const { paymentMethod = "cod", notes } = req.body;
-
     // Parse shipping address (support JSON object, JSON string, or multipart bracket notation)
     let shippingAddress = req.body.shippingAddress;
     if (typeof shippingAddress === "string") {
@@ -73,6 +71,14 @@ exports.createOrder = async (req, res, next) => {
       };
     }
 
+    const {
+      paymentMethod = "cod",
+      notes,
+      bkashNumber = "",
+      bkashTrxId = "",
+      advanceAmount: clientAdvanceAmount,
+    } = req.body;
+
     if (
       !shippingAddress.fullName ||
       !shippingAddress.phone ||
@@ -81,10 +87,17 @@ exports.createOrder = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Shipping address is required." });
     }
 
-    if (paymentMethod !== "cod") {
+    if (!["cod", "bkash"].includes(paymentMethod)) {
       return res.status(400).json({
         success: false,
-        message: "Only Cash on Delivery (COD) is available at this time.",
+        message: "Only Cash on Delivery (COD) and bKash payments are supported at this time.",
+      });
+    }
+
+    if (paymentMethod === "bkash" && (!bkashTrxId || !bkashTrxId.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "bKash Transaction ID (TrxID) is required for advance payment confirmation.",
       });
     }
 
@@ -115,10 +128,31 @@ exports.createOrder = async (req, res, next) => {
       quantity: item.quantity,
     }));
 
-    const itemsPrice = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0) - cart.discount;
-    const shippingPrice = itemsPrice > 1000 ? 0 : 60; // Free shipping over 1000 BDT
+    const rawItemsPrice = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    // 30% advance discount for bKash payment
+    let discountAmount = 0;
+    if (paymentMethod === "bkash") {
+      discountAmount = Math.round(rawItemsPrice * 0.30);
+    }
+
+    const itemsPrice = Math.max(0, rawItemsPrice - discountAmount - (cart.discount || 0));
+    const shippingPrice = itemsPrice >= 2000 ? 0 : 80; // Free shipping over 2000 BDT across Bangladesh
     const taxPrice = 0;
     const totalPrice = itemsPrice + shippingPrice + taxPrice;
+
+    // Advance amount calculation
+    let advanceAmount = 0;
+    let dueAmount = totalPrice;
+    let paymentStatus = "unpaid";
+
+    if (paymentMethod === "bkash") {
+      const parsedAdvance = Number(clientAdvanceAmount) || 100;
+      // Minimum ৳100 advance deposit, capped at totalPrice
+      advanceAmount = Math.max(100, Math.min(totalPrice, parsedAdvance));
+      dueAmount = Math.max(0, totalPrice - advanceAmount);
+      paymentStatus = advanceAmount >= totalPrice ? "paid" : "partially_paid";
+    }
 
     // Deduct stock atomically before creating order (prevents overselling)
     for (const item of cart.items) {
@@ -151,10 +185,18 @@ exports.createOrder = async (req, res, next) => {
       items: orderItems,
       shippingAddress,
       paymentMethod,
+      paymentStatus,
+      discountAmount,
+      advanceAmount,
+      dueAmount,
+      bkashNumber: (bkashNumber || "").trim(),
+      bkashTrxId: (bkashTrxId || "").trim().toUpperCase(),
       itemsPrice,
       shippingPrice,
       taxPrice,
       totalPrice,
+      isPaid: paymentStatus === "paid",
+      paidAt: paymentStatus === "paid" ? new Date() : undefined,
       notes,
       noteImage: req.file
         ? { url: req.file.path, publicId: req.file.filename }
@@ -564,7 +606,11 @@ exports.trackPublicOrder = async (req, res, next) => {
         totalPrice: order.totalPrice,
         itemsPrice: order.itemsPrice,
         shippingPrice: order.shippingPrice,
+        discountAmount: order.discountAmount,
+        advanceAmount: order.advanceAmount,
+        dueAmount: order.dueAmount,
         paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
         isPaid: order.isPaid,
         shippingAddress: {
           fullName: order.shippingAddress?.fullName,
@@ -577,6 +623,37 @@ exports.trackPublicOrder = async (req, res, next) => {
         deliveredAt: order.deliveredAt,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update order payment status (admin)
+// @route   PUT /api/orders/:id/payment-status
+exports.updatePaymentStatus = async (req, res, next) => {
+  try {
+    const { paymentStatus } = req.body;
+    if (!["unpaid", "partially_paid", "paid"].includes(paymentStatus)) {
+      return res.status(400).json({ success: false, message: "Invalid payment status." });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+
+    order.paymentStatus = paymentStatus;
+    if (paymentStatus === "paid") {
+      order.isPaid = true;
+      order.paidAt = new Date();
+      order.dueAmount = 0;
+    } else if (paymentStatus === "partially_paid") {
+      order.isPaid = false;
+    } else {
+      order.isPaid = false;
+      order.dueAmount = order.totalPrice;
+    }
+
+    await order.save();
+    res.json({ success: true, message: "Payment status updated.", order });
   } catch (error) {
     next(error);
   }

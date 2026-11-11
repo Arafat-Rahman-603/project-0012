@@ -90,6 +90,13 @@ export interface Order {
   }[];
   shippingAddress: Address;
   paymentMethod: string;
+  paymentStatus?: "unpaid" | "partially_paid" | "paid";
+  discountAmount?: number;
+  advanceAmount?: number;
+  dueAmount?: number;
+  bkashNumber?: string;
+  bkashTrxId?: string;
+  isPaid?: boolean;
   totalPrice: number;
   itemsPrice?: number;
   shippingPrice?: number;
@@ -179,5 +186,16 @@ export interface SiteSettings {
       isActive?: boolean;
     };
     defaultProvider?: "steadfast" | "pathao" | "none";
+  };
+  shippingSettings?: {
+    freeShippingThreshold?: number;
+    standardDeliveryFee?: number;
+  };
+  bkashSettings?: {
+    merchantNumber?: string;
+    accountType?: string;
+    advanceDiscountPercentage?: number;
+    minAdvanceAmount?: number;
+    isActive?: boolean;
   };
 }

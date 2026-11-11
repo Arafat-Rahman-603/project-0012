@@ -25,6 +25,17 @@ const DEFAULT_SETTINGS = {
     pathao: { clientId: "", clientSecret: "", username: "", password: "", storeId: "", isActive: false },
     defaultProvider: "steadfast",
   },
+  shippingSettings: {
+    freeShippingThreshold: 2000,
+    standardDeliveryFee: 80,
+  },
+  bkashSettings: {
+    merchantNumber: "01700000000",
+    accountType: "Merchant",
+    advanceDiscountPercentage: 30,
+    minAdvanceAmount: 100,
+    isActive: true,
+  },
 };
 
 const ensureSettings = async () =>
@@ -144,6 +155,22 @@ exports.updateSettings = async (req, res, next) => {
       } catch (_) {}
     }
 
+    let shippingSettings = currentSettings.shippingSettings || DEFAULT_SETTINGS.shippingSettings;
+    if (req.body.shippingSettings) {
+      try {
+        const parsed = typeof req.body.shippingSettings === "string" ? JSON.parse(req.body.shippingSettings) : req.body.shippingSettings;
+        shippingSettings = { ...shippingSettings, ...parsed };
+      } catch (_) {}
+    }
+
+    let bkashSettings = currentSettings.bkashSettings || DEFAULT_SETTINGS.bkashSettings;
+    if (req.body.bkashSettings) {
+      try {
+        const parsed = typeof req.body.bkashSettings === "string" ? JSON.parse(req.body.bkashSettings) : req.body.bkashSettings;
+        bkashSettings = { ...bkashSettings, ...parsed };
+      } catch (_) {}
+    }
+
     const settings = await SiteSettings.findOneAndUpdate(
       { singletonKey: "site" },
       {
@@ -169,6 +196,8 @@ exports.updateSettings = async (req, res, next) => {
           announcementBg: (req.body.announcementBg || "").trim() || DEFAULT_SETTINGS.announcementBg,
           announcementColor: (req.body.announcementColor || "").trim() || DEFAULT_SETTINGS.announcementColor,
           courierSettings,
+          shippingSettings,
+          bkashSettings,
         },
       },
       { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }

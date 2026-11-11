@@ -213,24 +213,76 @@ export default function OrderDetailPage() {
 
             {/* Payment & Total */}
             <div className="border border-ink/10 rounded-sm p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <CreditCard className="w-4 h-4 text-ink/40" />
-                <h2 className="font-semibold text-sm">Payment</h2>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-ink/40" />
+                  <h2 className="font-semibold text-sm">Payment Details</h2>
+                </div>
+                <span
+                  className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                    order.paymentMethod === "bkash"
+                      ? "bg-amber/15 text-amber-800 border border-amber/30"
+                      : "bg-parchment text-ink/70 border border-ink/10"
+                  }`}
+                >
+                  {order.paymentMethod === "bkash" ? "bKash Advance" : "Cash on Delivery"}
+                </span>
               </div>
-              <p className="text-sm text-ink/60 capitalize mb-4">{order.paymentMethod}</p>
+
+              {order.paymentMethod === "bkash" && (
+                <div className="mb-4 p-3 bg-amber/5 border border-amber/20 rounded-sm text-xs space-y-1">
+                  {order.bkashTrxId && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-ink/60">bKash TrxID:</span>
+                      <span className="font-mono font-bold text-ink">{order.bkashTrxId}</span>
+                    </div>
+                  )}
+                  {order.bkashNumber && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-ink/60">Customer Phone:</span>
+                      <span className="font-mono text-ink">{order.bkashNumber}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-1 border-t border-amber/15">
+                    <span className="text-ink/60">Payment Status:</span>
+                    <span className="font-semibold capitalize text-green-700">
+                      {order.paymentStatus === "paid" ? "Paid in Full ✓" : "Advance Deposit Received"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2 text-sm border-t border-ink/10 pt-4">
                 <div className="flex justify-between text-ink/60">
                   <span>Subtotal</span>
                   <span>৳{order.items.reduce((s, i) => s + i.price * i.quantity, 0).toLocaleString()}</span>
                 </div>
+                {Boolean(order.discountAmount && order.discountAmount > 0) && (
+                  <div className="flex justify-between text-amber-700 font-medium">
+                    <span>30% bKash Discount</span>
+                    <span>-৳{(order.discountAmount || 0).toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-ink/60">
                   <span>Shipping</span>
-                  <span>{order.totalPrice > 2000 ? "Free" : "৳80"}</span>
+                  <span>{order.totalPrice >= 2000 ? "Free" : "৳80"}</span>
                 </div>
                 <div className="flex justify-between font-bold pt-2 border-t border-ink/10">
-                  <span>Total</span>
+                  <span>Total Order Value</span>
                   <span className="text-base" style={{ fontFamily: "var(--font-display)" }}>৳{order.totalPrice.toLocaleString()}</span>
                 </div>
+                {order.paymentMethod === "bkash" && (
+                  <div className="pt-2 border-t border-dashed border-ink/10 text-xs space-y-1">
+                    <div className="flex justify-between font-medium text-amber-800">
+                      <span>Advance Paid:</span>
+                      <span>৳{(order.advanceAmount || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold text-ink">
+                      <span>Due on Delivery:</span>
+                      <span className="text-amber-700">৳{(order.dueAmount ?? order.totalPrice).toLocaleString()}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

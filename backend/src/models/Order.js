@@ -28,6 +28,16 @@ const orderSchema = new mongoose.Schema(
       enum: ["cod", "card", "bkash", "nagad"],
       default: "cod",
     },
+    paymentStatus: {
+      type: String,
+      enum: ["unpaid", "partially_paid", "paid"],
+      default: "unpaid",
+    },
+    discountAmount: { type: Number, default: 0 },
+    advanceAmount: { type: Number, default: 0 },
+    dueAmount: { type: Number, default: 0 },
+    bkashNumber: { type: String, default: "" },
+    bkashTrxId: { type: String, default: "" },
     paymentResult: {
       id: String,
       status: String,

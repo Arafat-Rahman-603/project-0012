@@ -542,6 +542,21 @@ function OrdersTab() {
     }
   };
 
+  const handleUpdatePaymentStatus = async (orderId: string, paymentStatus: "unpaid" | "partially_paid" | "paid") => {
+    try {
+      await ordersApi.updatePaymentStatus(orderId, paymentStatus);
+      setOrders(prev => prev.map(o => o._id === orderId ? {
+        ...o,
+        paymentStatus,
+        isPaid: paymentStatus === "paid",
+        dueAmount: paymentStatus === "paid" ? 0 : o.dueAmount
+      } : o));
+      toast.success(`Payment verified and marked as ${paymentStatus}`);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to update payment status");
+    }
+  };
+
   // Filter orders
   const filteredOrders = orders.filter((order) => {
     const q = search.toLowerCase().trim();
@@ -609,7 +624,7 @@ function OrdersTab() {
         <table className="w-full text-sm">
           <thead className="bg-parchment/60 border-b border-ink/10">
             <tr>
-              {["Order", "Customer", "Items", "Total (COD)", "Status", "Delivery Partner", "Date", "Actions"].map((h) => (
+              {["Order", "Customer", "Items", "Payment & Total", "Status", "Delivery Partner", "Date", "Actions"].map((h) => (
                 <th key={h} className="text-left px-3.5 py-3 text-xs font-semibold tracking-wider uppercase text-ink/60 whitespace-nowrap">
                   {h}
                 </th>
@@ -624,6 +639,8 @@ function OrdersTab() {
             ) : filteredOrders.map((order) => {
               const status = getOrderStatus(order);
               const hasCourier = order.courier?.provider && order.courier.provider !== "none";
+              const isBkash = order.paymentMethod === "bkash";
+              const isPaid = order.paymentStatus === "paid" || order.isPaid;
 
               return (
                 <tr key={order._id} className="hover:bg-parchment/20 transition-colors">
@@ -649,9 +666,54 @@ function OrdersTab() {
                     <span className="font-medium">{order.items?.length ?? 0}</span> item{(order.items?.length ?? 0) !== 1 ? "s" : ""}
                   </td>
 
-                  {/* Total COD */}
-                  <td className="px-3.5 py-3 font-semibold text-xs text-amber-700 whitespace-nowrap">
-                    {formatBdt(order.totalPrice)}
+                  {/* Payment & Total */}
+                  <td className="px-3.5 py-3 text-xs whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-ink text-sm">
+                        {formatBdt(order.totalPrice)}
+                      </span>
+                      {isBkash ? (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber/20 text-amber-900 border border-amber/30">
+                          bKash -30%
+                        </span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200">
+                          COD
+                        </span>
+                      )}
+                    </div>
+
+                    {isBkash ? (
+                      <div className="mt-1 space-y-0.5">
+                        {order.bkashTrxId && (
+                          <div className="flex items-center gap-1 font-mono text-[10px] text-ink">
+                            <span className="bg-parchment px-1.5 py-0.5 rounded border border-ink/10 font-bold">
+                              Trx: {order.bkashTrxId}
+                            </span>
+                          </div>
+                        )}
+                        <div className="text-[10px] text-ink/60">
+                          Adv: {formatBdt(order.advanceAmount || 0)} | Due: <strong className="text-amber-800">{formatBdt(order.dueAmount ?? order.totalPrice)}</strong>
+                        </div>
+                        {isPaid ? (
+                          <span className="inline-block text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">
+                            Verified ✓
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdatePaymentStatus(order._id, "paid")}
+                            className="inline-flex items-center gap-1 text-[10px] bg-green-600 hover:bg-green-700 text-white font-semibold px-2 py-0.5 rounded transition-all shadow-xs"
+                          >
+                            <Check className="w-3 h-3" /> Verify TrxID
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-ink/50 mt-0.5">
+                        Due on arrival: {formatBdt(order.totalPrice)}
+                      </div>
+                    )}
                   </td>
 
                   {/* Status Dropdown */}
@@ -783,7 +845,14 @@ function OrdersTab() {
               </div>
               <div className="text-right">
                 <p className="font-semibold text-gray-600 uppercase tracking-wider mb-1">Payment & Courier:</p>
-                <p className="text-gray-800">Method: <strong>Cash on Delivery (COD)</strong></p>
+                <p className="text-gray-800">
+                  Method: <strong>{selectedInvoiceOrder.paymentMethod === "bkash" ? "bKash (Advance Payment)" : "Cash on Delivery (COD)"}</strong>
+                </p>
+                {selectedInvoiceOrder.paymentMethod === "bkash" && selectedInvoiceOrder.bkashTrxId && (
+                  <p className="text-gray-800 font-mono text-[11px]">
+                    TrxID: <strong>{selectedInvoiceOrder.bkashTrxId}</strong>
+                  </p>
+                )}
                 <p className="text-gray-800">
                   Delivery Partner: <strong>{selectedInvoiceOrder.courier?.provider || "Unassigned"}</strong>
                 </p>
@@ -817,10 +886,37 @@ function OrdersTab() {
               </tbody>
             </table>
 
-            {/* Total */}
-            <div className="border-t border-gray-200 pt-3 flex justify-between items-center text-sm font-bold">
-              <span>Total Payable Amount:</span>
-              <span className="text-base text-gray-900">{formatBdt(selectedInvoiceOrder.totalPrice)}</span>
+            {/* Total breakdown */}
+            <div className="border-t border-gray-200 pt-3 space-y-1.5 text-xs">
+              <div className="flex justify-between text-gray-600">
+                <span>Items Subtotal:</span>
+                <span>{formatBdt(selectedInvoiceOrder.items?.reduce((s: number, i: any) => s + i.price * i.quantity, 0) || selectedInvoiceOrder.totalPrice)}</span>
+              </div>
+              {Boolean(selectedInvoiceOrder.discountAmount && selectedInvoiceOrder.discountAmount > 0) && (
+                <div className="flex justify-between text-amber-800 font-medium">
+                  <span>bKash 30% Advance Discount:</span>
+                  <span>-{formatBdt(selectedInvoiceOrder.discountAmount || 0)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-gray-600">
+                <span>Delivery Charge:</span>
+                <span>{selectedInvoiceOrder.totalPrice >= 2000 ? "Free (৳0)" : "৳80"}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm font-bold border-t border-gray-200 pt-2 text-gray-900">
+                <span>Total Order Value:</span>
+                <span className="text-base">{formatBdt(selectedInvoiceOrder.totalPrice)}</span>
+              </div>
+              {selectedInvoiceOrder.paymentMethod === "bkash" ? (
+                <div className="flex justify-between items-center text-xs font-bold bg-amber-50 p-2 rounded border border-amber-200 text-amber-900">
+                  <span>Due to Collect from Customer on Arrival:</span>
+                  <span className="text-sm font-extrabold">{formatBdt(selectedInvoiceOrder.dueAmount ?? 0)}</span>
+                </div>
+              ) : (
+                <div className="flex justify-between items-center text-xs font-bold bg-gray-50 p-2 rounded border border-gray-200 text-gray-900">
+                  <span>Due to Collect (COD):</span>
+                  <span className="text-sm font-extrabold">{formatBdt(selectedInvoiceOrder.totalPrice)}</span>
+                </div>
+              )}
             </div>
 
             {/* Modal Actions */}

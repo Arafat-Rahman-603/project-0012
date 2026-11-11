@@ -326,3 +326,131 @@ test("Order Cancellation - Lifecycle, Stock Restoration & Access Control", async
   assert.strictEqual(res5.statusCode, 400);
   assert.match(res5.jsonData.message, /dispatched to courier/);
 });
+
+test("Order Pricing & Payment - bKash 30% Advance Discount & Verification", async (t) => {
+  const { createOrder, updatePaymentStatus } = require("../src/controllers/orderController");
+  const Order = require("../src/models/Order");
+  const Cart = require("../src/models/Cart");
+  const Product = require("../src/models/Product");
+
+  const originalFindCart = Cart.findOne;
+  const originalUpdateCart = Cart.findOneAndUpdate;
+  const originalFindProductAndUpdate = Product.findOneAndUpdate;
+  const originalUpdateProduct = Product.findByIdAndUpdate;
+  const originalCreateOrder = Order.create;
+  const originalFindOrder = Order.findById;
+
+  t.after(() => {
+    Cart.findOne = originalFindCart;
+    Cart.findOneAndUpdate = originalUpdateCart;
+    Product.findOneAndUpdate = originalFindProductAndUpdate;
+    Product.findByIdAndUpdate = originalUpdateProduct;
+    Order.create = originalCreateOrder;
+    Order.findById = originalFindOrder;
+  });
+
+  Cart.findOneAndUpdate = async () => ({ items: [] });
+  Product.findOneAndUpdate = async () => ({ _id: "prod_1" });
+  Product.findByIdAndUpdate = async () => ({ _id: "prod_1" });
+
+  const createMockRes = () => {
+    const res = {
+      statusCode: 200,
+      jsonData: null,
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json(data) {
+        this.jsonData = data;
+        return this;
+      },
+    };
+    return res;
+  };
+
+  // Mock Cart with 2 items total ৳1,000 each = ৳2,000 subtotal
+  const mockCart = {
+    user: "user_buyer",
+    items: [
+      {
+        product: { _id: "prod_1", name: "Brazil Home Kit", isActive: true, stock: 10, images: [{ url: "img1.jpg" }] },
+        price: 1000,
+        quantity: 2,
+      },
+    ],
+    save: async () => {},
+  };
+
+  Cart.findOne = () => ({
+    populate: async () => mockCart,
+  });
+
+  Product.findByIdAndUpdate = async () => ({ _id: "prod_1" });
+
+  let savedOrderData = null;
+  Order.create = async (data) => {
+    savedOrderData = data;
+    return {
+      _id: "order_bkash_999",
+      ...data,
+      save: async function () { return this; },
+    };
+  };
+
+  // 1. bKash payment: subtotal 2000 => 30% discount = 600.
+  // itemsPrice = 2000 - 600 = 1400 (< 2000, so shipping = 80).
+  // totalPrice = 1400 + 80 = 1480.
+  // advanceAmount = 100 => dueAmount = 1380.
+  const reqBkash = {
+    user: { _id: "user_buyer" },
+    body: {
+      paymentMethod: "bkash",
+      bkashNumber: "01712345678",
+      bkashTrxId: "8N7X2KL9PQ",
+      advanceAmount: "100",
+      shippingAddress: {
+        fullName: "Karim Buyer",
+        phone: "01712345678",
+        addressLine1: "Banani, Dhaka",
+        city: "Dhaka",
+      },
+    },
+  };
+  const resBkash = createMockRes();
+
+  await createOrder(reqBkash, resBkash, () => {});
+
+  assert.strictEqual(resBkash.statusCode, 201);
+  assert.strictEqual(savedOrderData.discountAmount, 600); // 30% of 2000
+  assert.strictEqual(savedOrderData.itemsPrice, 1400);
+  assert.strictEqual(savedOrderData.shippingPrice, 80);
+  assert.strictEqual(savedOrderData.totalPrice, 1480);
+  assert.strictEqual(savedOrderData.advanceAmount, 100);
+  assert.strictEqual(savedOrderData.dueAmount, 1380);
+  assert.strictEqual(savedOrderData.paymentStatus, "partially_paid");
+  assert.strictEqual(savedOrderData.bkashTrxId, "8N7X2KL9PQ");
+
+  // 2. Admin 1-Click Verification of Payment Status
+  const mockOrderInstance = {
+    _id: "order_bkash_999",
+    paymentStatus: "partially_paid",
+    dueAmount: 1380,
+    isPaid: false,
+    save: async function () { return this; },
+  };
+  Order.findById = async () => mockOrderInstance;
+
+  const reqVerify = {
+    params: { id: "order_bkash_999" },
+    body: { paymentStatus: "paid" },
+  };
+  const resVerify = createMockRes();
+
+  await updatePaymentStatus(reqVerify, resVerify, () => {});
+
+  assert.strictEqual(resVerify.statusCode, 200);
+  assert.strictEqual(mockOrderInstance.paymentStatus, "paid");
+  assert.strictEqual(mockOrderInstance.isPaid, true);
+  assert.strictEqual(mockOrderInstance.dueAmount, 0);
+});

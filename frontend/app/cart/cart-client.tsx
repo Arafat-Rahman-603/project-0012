@@ -1,14 +1,14 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, MapPin, Camera, X, ZoomIn } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, MapPin, Camera, X, ZoomIn, Copy, Check, ShieldCheck, Zap } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
-import { ordersApi } from "@/lib/api";
-import { Address } from "@/types";
+import { ordersApi, settingsApi } from "@/lib/api";
+import { Address, SiteSettings } from "@/types";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 
@@ -16,8 +16,13 @@ export default function CartClient() {
   const router = useRouter();
   const { cart, updateItem, removeItem, clearCart, isLoading } = useCartStore();
   const { isAuthenticated, user } = useAuthStore();
-  const [checkoutStep, setCheckoutStep] = useState<"cart" | "address" | "confirm">("cart");
-  const paymentMethod = "cod";
+  const [checkoutStep, setCheckoutStep] = useState<"cart" | "address">("cart");
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bkash">("cod");
+  const [bkashNumber, setBkashNumber] = useState("");
+  const [bkashTrxId, setBkashTrxId] = useState("");
+  const [advanceType, setAdvanceType] = useState<"min100" | "full">("min100");
+  const [copiedNumber, setCopiedNumber] = useState(false);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [placing, setPlacing] = useState(false);
   const [note, setNote] = useState("");
   const [noteImage, setNoteImage] = useState<File | null>(null);
@@ -27,14 +32,54 @@ export default function CartClient() {
 
   const { register, handleSubmit, formState: { errors } } = useForm<Address>();
 
+  useEffect(() => {
+    settingsApi.get()
+      .then(({ data }) => {
+        if (data?.data) setSettings(data.data);
+        else if (data?.siteName) setSettings(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const merchantBkash = settings?.bkashSettings?.merchantNumber || "01700-000000";
+  const bkashAccountType = settings?.bkashSettings?.accountType || "Merchant";
+
   const items = cart?.items || [];
   const subtotal = items.reduce(
     (s, i) => s + (i.product.discountPrice ?? i.product.price) * i.quantity, 0
   );
-  const shipping = subtotal > 2000 ? 0 : 80;
-  const total = subtotal + shipping;
+
+  // 30% advance discount for bKash
+  const discountAmount = paymentMethod === "bkash" ? Math.round(subtotal * 0.30) : 0;
+  const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+  const shipping = discountedSubtotal >= 2000 ? 0 : 80;
+  const total = discountedSubtotal + shipping;
+
+  // Advance amount calculation
+  const advanceAmount = paymentMethod === "bkash"
+    ? (advanceType === "full" ? total : Math.max(100, Math.min(total, 100)))
+    : 0;
+  const dueAmount = Math.max(0, total - advanceAmount);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedNumber(true);
+    toast.success("bKash number copied to clipboard");
+    setTimeout(() => setCopiedNumber(false), 2000);
+  };
 
   const placeOrder = async (address: Address) => {
+    if (paymentMethod === "bkash") {
+      if (!bkashNumber.trim() || bkashNumber.trim().length < 11) {
+        toast.error("Please enter a valid 11-digit bKash account number.");
+        return;
+      }
+      if (!bkashTrxId.trim() || bkashTrxId.trim().length < 4) {
+        toast.error("Please enter the bKash Transaction ID (TrxID).");
+        return;
+      }
+    }
+
     setPlacing(true);
     try {
       const fd = new FormData();
@@ -57,12 +102,17 @@ export default function CartClient() {
       fd.append("shippingAddress[state]", shippingData.state);
       fd.append("shippingAddress[country]", "BD");
       fd.append("paymentMethod", paymentMethod);
+      if (paymentMethod === "bkash") {
+        fd.append("bkashNumber", bkashNumber.trim());
+        fd.append("bkashTrxId", bkashTrxId.trim().toUpperCase());
+        fd.append("advanceAmount", String(advanceAmount));
+      }
       if (note.trim()) fd.append("notes", note.trim());
       if (noteImage) fd.append("noteImage", noteImage);
 
       await ordersApi.create(fd);
       await clearCart();
-      toast.success("Order placed successfully!");
+      toast.success(paymentMethod === "bkash" ? "Order placed! 30% bKash discount applied." : "Order placed successfully!");
       router.push("/orders");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to place order");
@@ -278,14 +328,163 @@ export default function CartClient() {
                       </div>
                     ))}
 
-                    <div className="col-span-2 p-4 bg-parchment border border-ink/10 rounded-sm">
-                      <p className="text-xs font-semibold tracking-wider uppercase text-ink/50 mb-1">
-                        Payment method
-                      </p>
-                      <p className="text-sm font-medium">Cash on Delivery (COD)</p>
-                      <p className="text-xs text-ink/40 mt-1">
-                        Pay when your order is delivered. Online payment is not available yet.
-                      </p>
+                    {/* Payment Method Selector */}
+                    <div className="col-span-2 space-y-3 pt-2">
+                      <label className="block text-xs font-semibold tracking-wider uppercase text-ink/60">
+                        Choose Payment Method
+                      </label>
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {/* Option 1: Cash on Delivery */}
+                        <label
+                          className={`flex items-start gap-3 p-4 rounded-sm border cursor-pointer transition-all ${
+                            paymentMethod === "cod"
+                              ? "border-ink bg-parchment/60 ring-1 ring-ink"
+                              : "border-ink/10 hover:border-ink/30 bg-parchment/20"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="cod"
+                            checked={paymentMethod === "cod"}
+                            onChange={() => setPaymentMethod("cod")}
+                            className="mt-1 text-ink focus:ring-amber"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-semibold text-ink">Cash on Delivery</span>
+                              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-ink/5 text-ink/70">
+                                COD
+                              </span>
+                            </div>
+                            <p className="text-xs text-ink/60 mt-1">
+                              Pay in cash when rider delivers to your doorstep. Standard regular price.
+                            </p>
+                          </div>
+                        </label>
+
+                        {/* Option 2: bKash (Advance 30% OFF) */}
+                        <label
+                          className={`flex items-start gap-3 p-4 rounded-sm border cursor-pointer transition-all relative overflow-hidden ${
+                            paymentMethod === "bkash"
+                              ? "border-amber bg-amber/5 ring-1 ring-amber"
+                              : "border-ink/10 hover:border-amber/50 bg-parchment/20"
+                          }`}
+                        >
+                          <div className="absolute top-0 right-0 bg-amber text-ink text-[10px] font-black px-2 py-0.5 uppercase tracking-wider rounded-bl-sm">
+                            30% OFF
+                          </div>
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="bkash"
+                            checked={paymentMethod === "bkash"}
+                            onChange={() => setPaymentMethod("bkash")}
+                            className="mt-1 text-amber focus:ring-amber"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-semibold text-ink">bKash Advance</span>
+                            </div>
+                            <p className="text-xs text-ink/70 mt-1">
+                              Pay min. ৳100 advance deposit via bKash & get <strong className="text-amber-800">30% instant discount</strong>!
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+
+                      {/* bKash Payment Details Form */}
+                      {paymentMethod === "bkash" && (
+                        <div className="p-4 bg-amber/5 border border-amber/25 rounded-sm space-y-4 animate-in fade-in duration-200">
+                          <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-amber/20">
+                            <div>
+                              <p className="text-xs font-semibold text-ink/60 uppercase tracking-wider">
+                                Send Advance Payment to bKash ({bkashAccountType})
+                              </p>
+                              <p className="font-mono text-base font-bold text-ink mt-0.5">
+                                {merchantBkash}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(merchantBkash.replace(/[^0-9]/g, ""))}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber/20 hover:bg-amber/30 text-ink text-xs font-semibold rounded transition-colors"
+                            >
+                              {copiedNumber ? <Check className="w-3.5 h-3.5 text-green-700" /> : <Copy className="w-3.5 h-3.5" />}
+                              {copiedNumber ? "Copied" : "Copy Number"}
+                            </button>
+                          </div>
+
+                          {/* Advance Amount Choice */}
+                          <div>
+                            <label className="block text-xs font-semibold tracking-wider uppercase mb-2 text-ink/60">
+                              Advance Deposit Option
+                            </label>
+                            <div className="grid grid-cols-2 gap-3 text-xs">
+                              <button
+                                type="button"
+                                onClick={() => setAdvanceType("min100")}
+                                className={`p-2.5 rounded border text-left transition-all ${
+                                  advanceType === "min100"
+                                    ? "border-amber bg-cream font-bold text-ink ring-1 ring-amber"
+                                    : "border-ink/10 bg-parchment/40 text-ink/70"
+                                }`}
+                              >
+                                <div>Minimum Advance (৳100)</div>
+                                <div className="text-[11px] font-normal text-ink/50 mt-0.5">
+                                  Remaining ৳{dueAmount.toLocaleString()} due on delivery
+                                </div>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setAdvanceType("full")}
+                                className={`p-2.5 rounded border text-left transition-all ${
+                                  advanceType === "full"
+                                    ? "border-amber bg-cream font-bold text-ink ring-1 ring-amber"
+                                    : "border-ink/10 bg-parchment/40 text-ink/70"
+                                }`}
+                              >
+                                <div>Full Payment (৳{total.toLocaleString()})</div>
+                                <div className="text-[11px] font-normal text-ink/50 mt-0.5">
+                                  Nothing due on arrival (৳0 due)
+                                </div>
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="grid sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                              <label className="block text-xs font-semibold tracking-wider uppercase mb-1 text-ink/60">
+                                Your bKash Number <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="tel"
+                                value={bkashNumber}
+                                onChange={(e) => setBkashNumber(e.target.value)}
+                                placeholder="01XXXXXXXXX"
+                                className="w-full bg-cream border border-ink/15 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-amber font-mono"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold tracking-wider uppercase mb-1 text-ink/60">
+                                bKash Transaction ID (TrxID) <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={bkashTrxId}
+                                onChange={(e) => setBkashTrxId(e.target.value.toUpperCase())}
+                                placeholder="e.g. 8N7X2KL9PQ"
+                                className="w-full bg-cream border border-ink/15 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-amber font-mono uppercase"
+                              />
+                            </div>
+                          </div>
+
+                          <p className="text-[11px] text-ink/60 italic">
+                            * After sending at least ৳{advanceAmount} to our bKash number, enter your TrxID above. Our team will verify and dispatch immediately.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -421,6 +620,15 @@ export default function CartClient() {
                   <span className="text-ink/60">Subtotal</span>
                   <span>৳{subtotal.toLocaleString()}</span>
                 </div>
+                {paymentMethod === "bkash" && (
+                  <div className="flex justify-between text-amber-700 font-medium">
+                    <span className="flex items-center gap-1">
+                      <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-600" />
+                      bKash 30% Advance Discount
+                    </span>
+                    <span>-৳{discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-ink/60">Shipping</span>
                   <span className={shipping === 0 ? "text-green-600" : ""}>
@@ -433,11 +641,30 @@ export default function CartClient() {
                   </p>
                 )}
               </div>
-              <div className="border-t border-ink/10 pt-4 flex justify-between font-bold">
-                <span>Total</span>
-                <span className="text-lg" style={{ fontFamily: "var(--font-display)" }}>
-                  ৳{total.toLocaleString()}
-                </span>
+              <div className="border-t border-ink/10 pt-4 space-y-2">
+                <div className="flex justify-between font-bold">
+                  <span>Total Order Value</span>
+                  <span className="text-lg" style={{ fontFamily: "var(--font-display)" }}>
+                    ৳{total.toLocaleString()}
+                  </span>
+                </div>
+                {paymentMethod === "bkash" && (
+                  <div className="pt-2 border-t border-dashed border-ink/10 space-y-1 text-xs">
+                    <div className="flex justify-between font-semibold text-amber-800">
+                      <span>Advance to Pay via bKash:</span>
+                      <span>৳{advanceAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-ink/70">
+                      <span>Due on Delivery (COD):</span>
+                      <span className="font-semibold">৳{dueAmount.toLocaleString()}</span>
+                    </div>
+                  </div>
+                )}
+                {paymentMethod === "cod" && (
+                  <p className="text-[11px] text-ink/50 pt-1">
+                    Full amount ৳{total.toLocaleString()} payable in cash upon delivery.
+                  </p>
+                )}
               </div>
             </div>
           </div>
