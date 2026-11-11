@@ -227,7 +227,7 @@ export default function ProductDetailPage() {
               key={selectedImage}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="aspect-square bg-[#FAF8F5] border border-ink/5 rounded-sm overflow-hidden relative flex items-center justify-center p-4"
+              className="aspect-square w-full max-w-[560px] max-h-[560px] mx-auto bg-[#FAF8F5] border border-ink/10 rounded-sm overflow-hidden relative flex items-center justify-center p-4"
             >
               {product.images?.[selectedImage] ? (
                 <Image
@@ -237,7 +237,7 @@ export default function ProductDetailPage() {
                   priority
                   fetchPriority="high"
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain p-2 cursor-zoom-in hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full max-h-[520px] object-contain p-2 cursor-zoom-in hover:scale-105 transition-transform duration-300"
                   onClick={() => setIsLightboxOpen(true)}
                 />
               ) : (
@@ -258,8 +258,8 @@ export default function ProductDetailPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-20 h-20 rounded-sm overflow-hidden shrink-0 border-2 bg-[#FAF8F5] p-1 transition-colors ${
-                      selectedImage === i ? "border-ink" : "border-transparent"
+                    className={`w-20 h-20 min-w-[80px] min-h-[80px] aspect-square rounded-sm overflow-hidden shrink-0 border-2 bg-[#FAF8F5] p-1 transition-colors ${
+                      selectedImage === i ? "border-ink" : "border-ink/10"
                     }`}
                   >
                     <Image
@@ -440,10 +440,9 @@ export default function ProductDetailPage() {
               <button
                 onClick={handleBuyNow}
                 disabled={product.stock === 0 || addingToCart || buyingNow}
-                className="w-full flex items-center justify-center gap-2 bg-amber text-ink py-3.5 rounded-sm font-semibold hover:bg-amber/90 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 bg-amber text-ink py-3.5 rounded-sm font-semibold hover:bg-amber-light transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <span>⚡</span>
-                {buyingNow ? "Proceeding to Checkout…" : "Buy Now (সরাসরি কিনুন)"}
+                {buyingNow ? "Proceeding to Checkout…" : "Buy Now"}
               </button>
             </div>
 

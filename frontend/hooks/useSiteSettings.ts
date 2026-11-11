@@ -18,7 +18,7 @@ export const defaultSiteSettings: SiteSettings = {
   facebookUrl: "https://facebook.com",
   instagramUrl: "https://instagram.com",
   whatsappNumber: "+8801700000000",
-  announcementText: "⚡ New Season Football Kits & Premium Streetwear Dropped! Cash-on-Delivery Across Bangladesh",
+  announcementText: "New Season Football Kits & Premium Streetwear • Cash-on-Delivery Across Bangladesh",
   showAnnouncement: true,
   announcementBg: "#D97706",
   announcementColor: "#FFFFFF",

@@ -217,7 +217,7 @@ export default function CartClient() {
                       >
                         <Link
                           href={`/products/${item.product.slug || item.product._id}`}
-                          className="w-20 h-20 bg-parchment rounded-sm overflow-hidden shrink-0"
+                          className="w-20 h-20 min-w-[80px] min-h-[80px] max-w-[80px] max-h-[80px] aspect-square bg-[#FAF8F5] border border-ink/10 rounded-sm overflow-hidden shrink-0 relative flex items-center justify-center p-1"
                         >
                           {item.product.images?.[0] ? (
                             <Image
@@ -225,7 +225,7 @@ export default function CartClient() {
                               alt={item.product.name}
                               width={80}
                               height={80}
-                              className="w-full h-full object-contain p-1 bg-[#FAF8F5] hover:scale-105 transition-transform"
+                              className="w-full h-full object-contain hover:scale-105 transition-transform"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
@@ -622,10 +622,7 @@ export default function CartClient() {
                 </div>
                 {paymentMethod === "bkash" && (
                   <div className="flex justify-between text-amber-700 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-600" />
-                      bKash 30% Advance Discount
-                    </span>
+                    <span>bKash 30% Advance Discount</span>
                     <span>-৳{discountAmount.toLocaleString()}</span>
                   </div>
                 )}

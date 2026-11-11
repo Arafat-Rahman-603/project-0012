@@ -143,12 +143,12 @@ export default function CartScreen() {
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Delivery</Text>
           <Text style={[styles.summaryValue, { color: Colors.success }]}>
-            {total >= 2000 ? "Free" : "৳60"}
+            {total >= 2000 ? "Free" : "৳80"}
           </Text>
         </View>
         <View style={[styles.summaryRow, styles.totalRow]}>
           <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>৳{(total + (total >= 2000 ? 0 : 60)).toLocaleString()}</Text>
+          <Text style={styles.totalValue}>৳{(total + (total >= 2000 ? 0 : 80)).toLocaleString()}</Text>
         </View>
         <TouchableOpacity
           onPress={() => router.push("/checkout" as any)}

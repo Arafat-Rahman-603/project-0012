@@ -70,7 +70,7 @@ export default function HomeClient() {
   return (
     <div className="pt-14 sm:pt-16 md:pt-18">
       {/* Hero */}
-      <section className="relative min-h-[70vh] md:min-h-[78vh] flex items-center overflow-hidden stripe-bg">
+      <section className="relative h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] w-full flex items-center overflow-hidden">
         {bannerImages.map((image, index) => (
           <div
             key={`${image}-${index}`}
@@ -85,19 +85,12 @@ export default function HomeClient() {
               priority={index === 0}
               fetchPriority={index === 0 ? "high" : "low"}
               sizes="100vw"
-              className="object-cover object-center"
+              className="object-cover object-center w-full h-full"
             />
           </div>
         ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/50 to-ink/25" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-transparent to-ink/70" />
-
-        {/* Decorative elements */}
-        <div className="absolute right-0 top-0 w-1/2 h-full opacity-15 pointer-events-none">
-          <div className="absolute top-16 right-16 w-56 h-56 rounded-full border-[32px] border-cream/25" />
-          <div className="absolute bottom-16 right-32 w-36 h-36 rounded-full border-[20px] border-amber/40" />
-          <div className="absolute top-1/2 right-8 w-16 h-72 bg-cream/10 transform rotate-12 -translate-y-1/2" />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/60 to-ink/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-transparent to-ink/75" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16 w-full">
           <div className="max-w-3xl">
@@ -105,10 +98,9 @@ export default function HomeClient() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-amber-200 mb-4 px-3 py-1 bg-amber/15 rounded-sm border border-amber/30 backdrop-blur-xs"
+              className="inline-block text-xs font-semibold tracking-widest uppercase text-amber-200 mb-4 px-3 py-1 bg-ink/50 rounded-sm border border-cream/15"
             >
-              <Zap className="w-3.5 h-3.5 text-amber" />
-              2026 Kits & Streetwear Drop • {settings.siteName || defaultSiteSettings.siteName}
+              Official Collection • {settings.siteName || defaultSiteSettings.siteName}
             </motion.div>
 
             <AnimatePresence mode="wait">
@@ -373,10 +365,6 @@ export default function HomeClient() {
       {/* CTA Banner */}
       <section className="bg-ink text-cream py-12 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 stripe-bg" />
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 pointer-events-none">
-          <div className="absolute right-12 top-6 w-36 h-36 rounded-full border-[24px] border-amber" />
-          <div className="absolute right-4 bottom-6 w-20 h-20 rounded-full border-[14px] border-cream" />
-        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -384,8 +372,8 @@ export default function HomeClient() {
           transition={{ duration: 0.5 }}
           className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center"
         >
-          <p className="text-[11px] font-bold tracking-widest uppercase text-amber mb-2.5">
-            ⚡ VIP Drop Access
+          <p className="text-xs font-semibold tracking-wider uppercase text-amber mb-2">
+            Member Community
           </p>
           <h2
             className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3"
@@ -394,7 +382,7 @@ export default function HomeClient() {
             Join the Next Shop Squad
           </h2>
           <p className="text-cream/70 text-xs sm:text-sm mb-6 max-w-md mx-auto">
-            Get instant access to limited jersey releases, match-day specials, and exclusive member discounts across Bangladesh.
+            Get early access to authentic club jerseys, new seasonal kit arrivals, and exclusive discounts across Bangladesh.
           </p>
           <Link
             href="/register"
