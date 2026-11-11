@@ -266,7 +266,9 @@ function AddressesTab({ user, setUser }: { user: UserType; setUser: (u: UserType
   };
 
   const startEdit = (addr: Address) => {
-    setForm(addr); setEditingId(addr._id); setShowForm(true);
+    setForm(addr);
+    setEditingId(addr._id || null);
+    setShowForm(true);
   };
 
   return (
@@ -287,8 +289,8 @@ function AddressesTab({ user, setUser }: { user: UserType; setUser: (u: UserType
       )}
 
       <div className="grid sm:grid-cols-2 gap-4">
-        {user.addresses?.map((addr) => (
-          <div key={addr._id} className="border border-ink/10 rounded-sm p-4">
+        {user.addresses?.map((addr, idx) => (
+          <div key={addr._id || idx} className="border border-ink/10 rounded-sm p-4">
             <p className="font-semibold text-sm">{addr.fullName}</p>
             <p className="text-sm text-ink/60 mt-1">{addr.addressLine1}</p>
             <p className="text-sm text-ink/60">{addr.city}, {addr.state} {addr.postalCode}</p>
@@ -296,7 +298,7 @@ function AddressesTab({ user, setUser }: { user: UserType; setUser: (u: UserType
               <button onClick={() => startEdit(addr)} className="flex items-center gap-1 text-xs text-ink/50 hover:text-ink">
                 <Pencil className="w-3.5 h-3.5" /> Edit
               </button>
-              <button onClick={() => handleDelete(addr._id)} className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 ml-auto">
+              <button onClick={() => addr._id && handleDelete(addr._id)} className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 ml-auto">
                 <Trash2 className="w-3.5 h-3.5" /> Delete
               </button>
             </div>
