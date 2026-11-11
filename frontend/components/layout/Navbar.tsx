@@ -253,18 +253,6 @@ export default function Navbar() {
                 </div>
 
                 <Link
-                  href="/products?featured=true"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-sm transition-colors ${
-                    pathname.includes("featured")
-                      ? "text-amber font-bold bg-amber/10"
-                      : "text-ink/70 hover:text-ink hover:bg-parchment/40"
-                  }`}
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber" />
-                  <span>Featured</span>
-                </Link>
-
-                <Link
                   href="/track"
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-sm transition-colors ${
                     isActive("/track")
@@ -466,7 +454,6 @@ export default function Navbar() {
                   {[
                     { label: "Home", href: "/", icon: Sparkles },
                     { label: "Shop All Products", href: "/products", icon: ShoppingBag },
-                    { label: "Featured Collections", href: "/products?featured=true", icon: Sparkles },
                     { label: "Live Order Tracker", href: "/track", icon: Truck },
                   ].map((item) => (
                     <Link
