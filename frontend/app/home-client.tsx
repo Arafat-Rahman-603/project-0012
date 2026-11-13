@@ -10,12 +10,6 @@ import ProductCard from "@/components/product/ProductCard";
 import { extractList } from "@/lib/listResponse";
 import { defaultSiteSettings, useSiteSettings } from "@/hooks/useSiteSettings";
 
-const fallbackBannerImages = [
-  "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1920&q=85",
-  "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1920&q=85",
-  "https://images.unsplash.com/photo-1552066344-2464c1135c32?auto=format&fit=crop&w=1920&q=85",
-];
-
 export default function HomeClient() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -23,10 +17,9 @@ export default function HomeClient() {
   const [activeBanner, setActiveBanner] = useState(0);
   const { settings } = useSiteSettings();
   
-  const bannerImages =
-    settings.banners.length > 0
-      ? settings.banners.map((banner) => banner.url)
-      : fallbackBannerImages;
+  // Real banners from store settings only (no fake/demo Unsplash images)
+  const bannerImages = settings.banners.map((banner) => banner.url);
+  const hasBanners = bannerImages.length > 0;
 
   const currentBanner = settings.banners?.[activeBanner];
   
@@ -70,27 +63,37 @@ export default function HomeClient() {
   return (
     <div className="pt-14 sm:pt-16 md:pt-18">
       {/* Hero */}
-      <section className="relative h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] w-full flex items-center overflow-hidden">
-        {bannerImages.map((image, index) => (
-          <div
-            key={`${image}-${index}`}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === activeBanner ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Image
-              src={image}
-              alt={`Banner ${index + 1}`}
-              fill
-              priority={index === 0}
-              fetchPriority={index === 0 ? "high" : "low"}
-              sizes="100vw"
-              className="object-cover object-center w-full h-full"
-            />
-          </div>
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/60 to-ink/30" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-transparent to-ink/75" />
+      <section
+        className={`relative w-full overflow-hidden flex items-center ${
+          hasBanners
+            ? "h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px]"
+            : "min-h-[320px] sm:min-h-[360px] md:min-h-[420px] py-10 sm:py-14 md:py-16 bg-gradient-to-br from-[#0F0F0F] via-[#161616] to-[#0A0A0A] border-b border-cream/10"
+        }`}
+      >
+        {hasBanners && (
+          <>
+            {bannerImages.map((image, index) => (
+              <div
+                key={`${image}-${index}`}
+                className={`absolute inset-0 transition-opacity duration-1000 ${
+                  index === activeBanner ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <Image
+                  src={image}
+                  alt={`Banner ${index + 1}`}
+                  fill
+                  priority={index === 0}
+                  fetchPriority={index === 0 ? "high" : "low"}
+                  sizes="100vw"
+                  className="object-cover object-center w-full h-full"
+                />
+              </div>
+            ))}
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/65 to-ink/35" />
+            <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-transparent to-ink/75" />
+          </>
+        )}
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16 w-full">
           <div className="max-w-3xl">

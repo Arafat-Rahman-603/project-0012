@@ -29,7 +29,7 @@ export default function ProductCardImageSwiper({ images, alt, className = "" }: 
         alt={alt}
         fill
         sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        className={`object-contain p-1 transition-transform duration-500 group-hover:scale-105 ${className}`}
+        className={`object-cover transition-transform duration-500 group-hover:scale-105 ${className}`}
       />
     );
   }
@@ -55,7 +55,7 @@ export default function ProductCardImageSwiper({ images, alt, className = "" }: 
             alt={`${alt} ${i + 1}`}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-contain p-1 transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </SwiperSlide>
       ))}

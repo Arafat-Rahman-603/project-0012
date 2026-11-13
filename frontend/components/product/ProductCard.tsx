@@ -93,7 +93,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0 }: Props) {
               sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={index < 4}
               fetchPriority={index < 4 ? "high" : "low"}
-              className="object-contain p-1 transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-parchment">
